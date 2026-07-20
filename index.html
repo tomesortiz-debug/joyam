@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tap Tycoon">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Tap Tycoon</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+  html, body { height:100%; overflow:hidden; touch-action:manipulation; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #1b2a5e 0%, #0b1020 60%, #070a16 100%);
+    color:#eef1ff;
+    display:flex; flex-direction:column;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  svg { display:block; }
+
+  /* ---------- Top stats ---------- */
+  #topbar { text-align:center; padding:10px 12px 6px; flex:0 0 auto; }
+  #money {
+    font-size: clamp(34px, 10vw, 48px); font-weight:800; letter-spacing:-1px;
+    background: linear-gradient(180deg, #b9f6ca, #4ade80 55%, #16a34a);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    text-shadow: 0 0 24px rgba(74,222,128,.25);
+    transition: transform .08s;
+  }
+  #money.pop { transform: scale(1.04); }
+  .chips { display:flex; justify-content:center; gap:8px; margin-top:6px; flex-wrap:wrap; }
+  .chip {
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+    border-radius:999px; padding:4px 12px; font-size:12.5px; color:#c7d0f0; font-weight:600;
+  }
+  .chip b { color:#ffe082; }
+  .chip.prestige b { color:#c084fc; }
+
+  /* ---------- Boost pills ---------- */
+  #boosts { display:flex; justify-content:center; gap:6px; min-height:26px; margin-top:4px; flex-wrap:wrap; }
+  .boostpill {
+    background:linear-gradient(90deg,#7c3aed,#db2777); border-radius:999px;
+    padding:3px 10px; font-size:12px; font-weight:700; box-shadow:0 2px 10px rgba(219,39,119,.4);
+    animation: pulse 1s infinite alternate;
+  }
+  @keyframes pulse { from{opacity:.85} to{opacity:1} }
+
+  /* ---------- Tap zone / character ---------- */
+  #tapzone { flex:1 1 auto; position:relative; display:flex; align-items:flex-end; justify-content:center; min-height:150px; overflow:hidden; }
+  #skyline { position:absolute; bottom:0; left:0; width:100%; height:52%; opacity:.55; pointer-events:none; }
+  #avatar {
+    position:relative; height:96%; max-height:340px; aspect-ratio:220/270;
+    display:flex; align-items:flex-end; justify-content:center;
+    cursor:pointer; transition: transform .06s; z-index:2;
+  }
+  #avatar.squish { transform: scale(.95); }
+  #aura {
+    position:absolute; left:50%; top:38%; transform:translate(-50%,-50%);
+    width:105%; aspect-ratio:1; border-radius:50%; z-index:-1;
+    background: radial-gradient(circle, rgba(255,255,255,.08) 0%, transparent 68%);
+  }
+  #aura.blue  { background: radial-gradient(circle, rgba(59,130,246,.4), transparent 68%); }
+  #aura.purple{ background: radial-gradient(circle, rgba(168,85,247,.4), transparent 68%); }
+  #aura.gold  { background: radial-gradient(circle, rgba(250,204,21,.42), transparent 68%); }
+  #charSvg { width:100%; height:100%; filter: drop-shadow(0 10px 18px rgba(0,0,0,.45)); }
+  #taphint { position:absolute; bottom:6px; width:100%; text-align:center; font-size:12px; color:#8892b8; letter-spacing:.5px; z-index:3; pointer-events:none; }
+
+  .float {
+    position:absolute; font-weight:800; font-size:22px; color:#7CFC9A; pointer-events:none;
+    text-shadow:0 2px 6px rgba(0,0,0,.6); animation: rise .9s ease-out forwards; z-index:5;
+  }
+  @keyframes rise { 0%{opacity:1; transform:translateY(0) scale(1)} 100%{opacity:0; transform:translateY(-90px) scale(1.25)} }
+  .coinDot {
+    width:22px; height:22px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #ffe082, #f59e0b 60%, #b45309);
+    border:2px solid #92400e; box-shadow:0 2px 6px rgba(0,0,0,.5);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:900; color:#7c2d12;
+  }
+
+  /* ---------- Shop ---------- */
+  #shop {
+    flex: 0 0 47%; display:flex; flex-direction:column;
+    background:rgba(10,14,30,.92); border-top:1px solid rgba(255,255,255,.1);
+    border-radius:22px 22px 0 0; box-shadow:0 -10px 30px rgba(0,0,0,.45);
+  }
+  #tabs { display:flex; flex:0 0 auto; padding:8px 6px 4px; gap:3px; }
+  .tab {
+    flex:1; text-align:center; padding:7px 0 6px; border-radius:12px; font-size:10px; font-weight:700;
+    color:#8892b8; background:transparent; border:none; cursor:pointer;
+  }
+  .tab svg { width:21px; height:21px; margin:0 auto 2px; }
+  .tab.active { background:rgba(255,255,255,.09); color:#fff; }
+  #panel { flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 12px 20px; }
+
+  .row {
+    display:flex; align-items:center; gap:10px; padding:10px;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+    border-radius:14px; margin-bottom:8px;
+  }
+  .row.done { border-color:rgba(250,204,21,.5); background:rgba(250,204,21,.08); }
+  .row .icon { width:40px; height:40px; flex:0 0 auto; }
+  .row .icon svg { width:100%; height:100%; }
+  .row .info { flex:1 1 auto; min-width:0; }
+  .row .name { font-weight:700; font-size:14px; }
+  .row .name .owned { color:#ffd54f; font-size:12px; margin-left:6px; }
+  .row .desc { font-size:11.5px; color:#9aa5c9; margin-top:2px; }
+  .bar { height:5px; border-radius:99px; background:rgba(255,255,255,.1); margin-top:6px; overflow:hidden; }
+  .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#4ade80,#22c55e); transition:width .3s; }
+  .bar.gold i { background:linear-gradient(90deg,#fde68a,#f59e0b); }
+  .buy {
+    flex:0 0 auto; min-width:86px; padding:9px 10px; border:none; border-radius:12px;
+    font-weight:800; font-size:13px; color:#06230f; cursor:pointer;
+    background:linear-gradient(180deg,#6ee7a0,#22c55e); box-shadow:0 3px 0 #15803d;
+  }
+  .buy:active { transform:translateY(2px); box-shadow:0 1px 0 #15803d; }
+  .buy:disabled { background:#2a3352; color:#697199; box-shadow:none; }
+  .buy.equipped { background:linear-gradient(180deg,#93c5fd,#3b82f6); box-shadow:0 3px 0 #1d4ed8; color:#eff6ff; }
+  .buy.free { background:linear-gradient(180deg,#fde68a,#f59e0b); box-shadow:0 3px 0 #b45309; color:#451a03; }
+  .sectionTitle { font-size:12px; font-weight:800; color:#8892b8; letter-spacing:1px; margin:10px 2px 6px; text-transform:uppercase; }
+
+  /* ---------- Buy amount selector ---------- */
+  #amtRow { display:flex; align-items:center; gap:6px; margin:4px 2px 10px; }
+  #amtRow span { font-size:11px; color:#8892b8; font-weight:700; }
+  .amtBtn {
+    padding:6px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.05); color:#aeb8dd; font-weight:800; font-size:12px; cursor:pointer;
+  }
+  .amtBtn.active { background:linear-gradient(180deg,#6ee7a0,#22c55e); color:#06230f; border-color:transparent; }
+
+  /* ---------- Prestige card ---------- */
+  #prestigeCard {
+    background:linear-gradient(135deg, rgba(124,58,237,.25), rgba(219,39,119,.15));
+    border:1px solid rgba(168,85,247,.45); border-radius:16px; padding:14px; margin-bottom:12px;
+  }
+  #prestigeCard h3 { font-size:15px; margin-bottom:4px; }
+  #prestigeCard p { font-size:12px; color:#c4b5fd; margin-bottom:8px; }
+  #prestigeBtn {
+    width:100%; padding:12px; border:none; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;
+    background:linear-gradient(180deg,#c084fc,#9333ea); box-shadow:0 3px 0 #6b21a8; color:#faf5ff;
+  }
+  #prestigeBtn:disabled { background:#2a3352; color:#697199; box-shadow:none; }
+
+  /* ---------- Stats / settings ---------- */
+  .statrow { display:flex; justify-content:space-between; padding:10px 4px; border-bottom:1px solid rgba(255,255,255,.07); font-size:14px; }
+  .statrow b { color:#ffe082; }
+  .settingsBtn {
+    width:100%; padding:12px; margin-top:10px; border-radius:12px; border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.06); color:#eef1ff; font-weight:700; font-size:14px; cursor:pointer;
+  }
+  .settingsBtn.danger { border-color:#7f1d1d; background:rgba(220,38,38,.15); color:#fca5a5; }
+
+  /* ---------- Modal ---------- */
+  #modal {
+    position:fixed; inset:0; background:rgba(0,0,0,.7); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:24px;
+  }
+  #modal.show { display:flex; }
+  #modalCard {
+    background:linear-gradient(180deg,#1c2547,#111731); border:1px solid rgba(255,255,255,.15);
+    border-radius:20px; padding:26px 22px; text-align:center; max-width:320px; width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  #modalCard .big { width:64px; height:64px; margin:0 auto; }
+  #modalCard h2 { margin:8px 0 4px; font-size:20px; }
+  #modalCard p { color:#aeb8dd; font-size:14px; margin-bottom:16px; }
+  #modalCard .gain { color:#4ade80; font-weight:800; font-size:22px; }
+  #modalBtn {
+    width:100%; padding:13px; border:none; border-radius:14px; font-weight:800; font-size:15px;
+    background:linear-gradient(180deg,#6ee7a0,#22c55e); box-shadow:0 3px 0 #15803d; color:#06230f; cursor:pointer;
+  }
+  #toast {
+    position:fixed; top:14%; left:50%; transform:translateX(-50%);
+    background:rgba(20,26,52,.95); border:1px solid rgba(255,255,255,.2); border-radius:999px;
+    padding:8px 18px; font-size:13px; font-weight:700; opacity:0; transition:opacity .25s; z-index:60; pointer-events:none;
+    white-space:nowrap; max-width:92vw; overflow:hidden; text-overflow:ellipsis;
+  }
+  #toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="money">$0</div>
+  <div class="chips">
+    <span class="chip">TAP <b id="tapVal">$1</b></span>
+    <span class="chip">INCOME <b id="secVal">$0</b>/s</span>
+    <span class="chip prestige" id="prestigeChip" style="display:none">PRESTIGE <b id="prestigeVal"></b></span>
+  </div>
+  <div id="boosts"></div>
+</div>
+
+<div id="tapzone">
+  <svg id="skyline" viewBox="0 0 400 160" preserveAspectRatio="xMidYMax slice">
+    <g fill="#141c38">
+      <rect x="0" y="70" width="42" height="90"/><rect x="46" y="40" width="34" height="120"/>
+      <rect x="84" y="90" width="30" height="70"/><rect x="118" y="24" width="40" height="136"/>
+      <rect x="162" y="66" width="30" height="94"/><rect x="196" y="46" width="44" height="114"/>
+      <rect x="244" y="86" width="28" height="74"/><rect x="276" y="30" width="38" height="130"/>
+      <rect x="318" y="72" width="32" height="88"/><rect x="354" y="50" width="46" height="110"/>
+    </g>
+    <g fill="#ffd54f" opacity=".5">
+      <rect x="52" y="52" width="5" height="5"/><rect x="64" y="70" width="5" height="5"/><rect x="52" y="92" width="5" height="5"/>
+      <rect x="126" y="38" width="5" height="5"/><rect x="140" y="56" width="5" height="5"/><rect x="126" y="80" width="5" height="5"/><rect x="140" y="104" width="5" height="5"/>
+      <rect x="204" y="60" width="5" height="5"/><rect x="220" y="78" width="5" height="5"/><rect x="204" y="100" width="5" height="5"/>
+      <rect x="284" y="44" width="5" height="5"/><rect x="298" y="66" width="5" height="5"/><rect x="284" y="92" width="5" height="5"/>
+      <rect x="362" y="64" width="5" height="5"/><rect x="378" y="86" width="5" height="5"/>
+    </g>
+  </svg>
+
+  <div id="avatar">
+    <div id="aura"></div>
+    <svg id="charSvg" viewBox="0 0 220 270">
+      <!-- suit body -->
+      <path d="M58,270 L66,182 Q78,166 110,164 Q142,166 154,182 L162,270 Z" fill="#1e2a4a"/>
+      <path d="M88,170 L110,196 L94,206 L82,180 Z" fill="#141d36"/>
+      <path d="M132,170 L110,196 L126,206 L138,180 Z" fill="#141d36"/>
+      <path d="M97,168 L110,194 L123,168 Q110,162 97,168 Z" fill="#f4f6fb"/>
+      <path d="M106,172 L114,172 L112,186 L117,208 L110,220 L103,208 L108,186 Z" fill="#d4a017"/>
+      <!-- neck & head -->
+      <rect x="96" y="128" width="28" height="42" rx="10" fill="#e8a97b"/>
+      <circle cx="63" cy="102" r="9" fill="#f0b689"/><circle cx="157" cy="102" r="9" fill="#f0b689"/>
+      <ellipse cx="110" cy="100" rx="46" ry="48" fill="#f0b689"/>
+      <path d="M64,90 Q68,42 110,40 Q152,42 156,90 Q150,66 128,58 Q110,52 92,58 Q70,66 64,90 Z" fill="#4a3222"/>
+      <!-- brows / eyes -->
+      <rect x="80" y="74" width="21" height="5" rx="2.5" fill="#4a3222"/>
+      <rect x="119" y="74" width="21" height="5" rx="2.5" fill="#4a3222"/>
+      <g id="eyesN">
+        <circle cx="91" cy="91" r="5.5" fill="#26221f"/><circle cx="93" cy="89" r="1.6" fill="#fff"/>
+        <circle cx="129" cy="91" r="5.5" fill="#26221f"/><circle cx="131" cy="89" r="1.6" fill="#fff"/>
+      </g>
+      <g id="eyesR" style="display:none">
+        <text x="91" y="99" text-anchor="middle" font-size="22" font-weight="900" fill="#16a34a" font-family="Arial">$</text>
+        <text x="129" y="99" text-anchor="middle" font-size="22" font-weight="900" fill="#16a34a" font-family="Arial">$</text>
+      </g>
+      <!-- nose, cheeks -->
+      <path d="M108,102 Q113,110 107,114" fill="none" stroke="#d99a6c" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="79" cy="112" r="7" fill="#e88b6d" opacity=".35"/><circle cx="141" cy="112" r="7" fill="#e88b6d" opacity=".35"/>
+      <!-- mouths (wealth tiers) -->
+      <path id="m1" d="M96,126 Q110,134 124,126" fill="none" stroke="#7a4a2a" stroke-width="4" stroke-linecap="round"/>
+      <path id="m2" style="display:none" d="M92,124 Q110,142 128,124" fill="none" stroke="#7a4a2a" stroke-width="4.5" stroke-linecap="round"/>
+      <g id="m3" style="display:none">
+        <path d="M90,122 Q110,148 130,122 Q110,130 90,122 Z" fill="#84322a"/>
+        <path d="M94,124 Q110,132 126,124 L124,129 Q110,135 96,129 Z" fill="#fff"/>
+      </g>
+      <!-- hats -->
+      <g id="w-cap" style="display:none">
+        <path d="M70,72 Q72,34 110,32 Q148,34 150,72 Q110,58 70,72 Z" fill="#d23f3f"/>
+        <rect x="62" y="62" width="96" height="13" rx="6.5" fill="#a92f2f"/>
+        <circle cx="110" cy="34" r="5" fill="#a92f2f"/>
+      </g>
+      <g id="w-tophat" style="display:none">
+        <rect x="76" y="4" width="68" height="56" rx="5" fill="#1c1c24"/>
+        <rect x="76" y="44" width="68" height="12" fill="#d4a017"/>
+        <ellipse cx="110" cy="60" rx="56" ry="9" fill="#26262e"/>
+      </g>
+      <g id="w-crown" style="display:none">
+        <path d="M74,66 L74,32 L92,50 L110,22 L128,50 L146,32 L146,66 Z" fill="#eab308" stroke="#b45309" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="87" cy="57" r="4.5" fill="#dc2626"/><circle cx="110" cy="53" r="4.5" fill="#2563eb"/><circle cx="133" cy="57" r="4.5" fill="#16a34a"/>
+      </g>
+      <!-- glasses -->
+      <g id="w-nerd" style="display:none">
+        <circle cx="91" cy="91" r="14" fill="rgba(255,255,255,.14)" stroke="#23324f" stroke-width="4"/>
+        <circle cx="129" cy="91" r="14" fill="rgba(255,255,255,.14)" stroke="#23324f" stroke-width="4"/>
+        <path d="M105,90 Q110,85 115,90" fill="none" stroke="#23324f" stroke-width="4"/>
+        <path d="M77,89 L65,86 M143,89 L155,86" stroke="#23324f" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <g id="w-shades" style="display:none">
+        <rect x="74" y="80" width="30" height="20" rx="7" fill="#10131c" stroke="#2e2e38" stroke-width="2"/>
+        <rect x="116" y="80" width="30" height="20" rx="7" fill="#10131c" stroke="#2e2e38" stroke-width="2"/>
+        <path d="M104,86 Q110,82 116,86" fill="none" stroke="#2e2e38" stroke-width="4"/>
+        <path d="M80,85 L90,85" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M74,88 L65,85 M146,88 L155,85" stroke="#2e2e38" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <g id="w-visor" style="display:none">
+        <rect x="68" y="79" width="84" height="21" rx="10.5" fill="rgba(34,211,238,.7)" stroke="#0e7490" stroke-width="3"/>
+        <path d="M76,86 L100,86" stroke="rgba(255,255,255,.55)" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+      <!-- chains -->
+      <g id="w-beads" style="display:none">
+        <circle cx="80" cy="184" r="6" fill="#8b5e3c" stroke="#6b4226" stroke-width="2"/><circle cx="88" cy="193" r="6" fill="#8b5e3c" stroke="#6b4226" stroke-width="2"/>
+        <circle cx="98" cy="200" r="6" fill="#8b5e3c" stroke="#6b4226" stroke-width="2"/><circle cx="110" cy="203" r="6" fill="#8b5e3c" stroke="#6b4226" stroke-width="2"/>
+        <circle cx="122" cy="200" r="6" fill="#8b5e3c" stroke="#6b4226" stroke-width="2"/><circle cx="132" cy="193" r="6" fill="#8b5e3c" stroke="#6b4226" stroke-width="2"/>
+        <circle cx="140" cy="184" r="6" fill="#8b5e3c" stroke="#6b4226" stroke-width="2"/>
+      </g>
+      <g id="w-watch" style="display:none">
+        <path d="M82,182 Q110,206 138,182" fill="none" stroke="#fbbf24" stroke-width="4" stroke-dasharray="1 6" stroke-linecap="round"/>
+        <circle cx="110" cy="214" r="13" fill="#f8fafc" stroke="#d4a017" stroke-width="4.5"/>
+        <path d="M110,214 L110,206 M110,214 L116,216" stroke="#1f2937" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+      <g id="w-gem" style="display:none">
+        <path d="M80,182 Q110,208 140,182" fill="none" stroke="#fbbf24" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M110,202 L97,212 L110,230 L123,212 Z" fill="#67e8f9" stroke="#0891b2" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M97,212 L123,212" stroke="#0891b2" stroke-width="2"/>
+      </g>
+    </svg>
+  </div>
+  <div id="taphint">TAP TO MAKE MONEY</div>
+</div>
+
+<div id="shop">
+  <div id="tabs"></div>
+  <div id="panel"></div>
+</div>
+
+<div id="modal">
+  <div id="modalCard">
+    <div class="big" id="modalEmoji"></div>
+    <h2 id="modalTitle">Welcome back!</h2>
+    <p id="modalText">Your businesses kept working.</p>
+    <div class="gain" id="modalGain"></div>
+    <button id="modalBtn">Collect</button>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+/* ================= Vector icon set ================= */
+
+function svg40(inner) { return '<svg viewBox="0 0 40 40">' + inner + '</svg>'; }
+const ICONS = {
+  lemonade: svg40('<path d="M12,12 L28,12 L25,34 L15,34 Z" fill="#fef9c3" stroke="#eab308" stroke-width="2.5" stroke-linejoin="round"/><path d="M13.5,18 L26.5,18 L25,30.5 L15,30.5 Z" fill="#fde047"/><path d="M22,12 L28,3" stroke="#f472b6" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="8" r="5.5" fill="#fde047" stroke="#ca8a04" stroke-width="2"/><path d="M30,3.5 L30,12.5 M25.5,8 L34.5,8" stroke="#ca8a04" stroke-width="1.5"/>'),
+  foodcart: svg40('<path d="M6,22 Q6,14 20,14 Q34,14 34,22 Z" fill="#f59e0b"/><rect x="6" y="21" width="28" height="9" rx="4.5" fill="#c2410c"/><path d="M8,26 Q20,32 32,26 Q20,38 8,26 Z" fill="#f59e0b"/><path d="M10,24 Q14,21 18,24 Q22,27 26,24 Q28,22.5 31,24" fill="none" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>'),
+  coffee: svg40('<rect x="8" y="14" width="20" height="16" rx="4" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/><path d="M28,17 Q35,17 35,22 Q35,27 28,27" fill="none" stroke="#94a3b8" stroke-width="2.5"/><rect x="10.5" y="18" width="15" height="8" rx="2" fill="#7c4a24"/><path d="M14,10 Q12,7 14,4 M20,10 Q18,7 20,4 M26,10 Q24,7 26,4" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" fill="none"/><rect x="6" y="31" width="24" height="3.5" rx="1.75" fill="#64748b"/>'),
+  arcade: svg40('<path d="M9,4 L31,4 L31,36 L9,36 Z" fill="#6d28d9" stroke="#4c1d95" stroke-width="2"/><rect x="12.5" y="8" width="15" height="11" rx="2" fill="#22d3ee"/><path d="M15,15 L19,11 L23,15" fill="none" stroke="#0e7490" stroke-width="2"/><circle cx="15.5" cy="26" r="2.8" fill="#f43f5e"/><circle cx="24.5" cy="26" r="2.8" fill="#fbbf24"/><rect x="12" y="31" width="16" height="2.5" rx="1.25" fill="#4c1d95"/>'),
+  startup: svg40('<rect x="7" y="7" width="26" height="17" rx="2.5" fill="#1f2937" stroke="#94a3b8" stroke-width="2"/><path d="M11,12 L16,12 M11,16 L20,16 M11,20 L14,20" stroke="#4ade80" stroke-width="2" stroke-linecap="round"/><path d="M22,12 L28,12 M23,16 L29,16" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/><path d="M4,30 L36,30 L33,25 L7,25 Z" fill="#64748b"/><rect x="16" y="26.5" width="8" height="2" rx="1" fill="#94a3b8"/>'),
+  estate: svg40('<rect x="6" y="14" width="12" height="22" fill="#475569"/><rect x="20" y="6" width="14" height="30" fill="#64748b"/><g fill="#fde047"><rect x="8.5" y="17" width="3" height="3"/><rect x="13" y="17" width="3" height="3"/><rect x="8.5" y="23" width="3" height="3"/><rect x="13" y="29" width="3" height="3"/><rect x="23" y="9" width="3" height="3"/><rect x="28.5" y="9" width="3" height="3"/><rect x="23" y="15" width="3" height="3"/><rect x="28.5" y="21" width="3" height="3"/><rect x="23" y="27" width="3" height="3"/></g>'),
+  bank: svg40('<path d="M20,3 L36,12 L4,12 Z" fill="#cbd5e1" stroke="#64748b" stroke-width="2" stroke-linejoin="round"/><rect x="7" y="14" width="4.5" height="15" fill="#94a3b8"/><rect x="15" y="14" width="4.5" height="15" fill="#94a3b8"/><rect x="23" y="14" width="4.5" height="15" fill="#94a3b8"/><rect x="30" y="14" width="4.5" height="15" fill="#94a3b8"/><rect x="4" y="30" width="32" height="5" rx="1" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5"/><text x="20" y="10.5" text-anchor="middle" font-size="7" font-weight="900" fill="#b45309" font-family="Arial">$</text>'),
+  space: svg40('<path d="M20,2 Q29,12 27,26 L13,26 Q11,12 20,2 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/><path d="M20,2 Q25,8 26,15 L14,15 Q15,8 20,2 Z" fill="#ef4444"/><circle cx="20" cy="19" r="3.5" fill="#38bdf8" stroke="#0369a1" stroke-width="1.5"/><path d="M13,22 L6,32 L14,29 M27,22 L34,32 L26,29" fill="#ef4444"/><path d="M17,27 Q20,36 20,38 Q20,36 23,27 Z" fill="#fb923c"/>'),
+  fingers: svg40('<path d="M17,7 Q17,4 20,4 Q23,4 23,7 L23,20 L28,21 Q33,22 33,27 L32,32 Q31,36 26,36 L17,36 Q13,36 11,32 L7,26 Q6,23 9,22 Q11,21.5 13,24 L17,27 Z" fill="#f0b689" stroke="#c97b4a" stroke-width="2" stroke-linejoin="round"/><path d="M12,10 L8,6 M20,2 L20,0 M28,10 L32,6" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>'),
+  gloves: svg40('<path d="M8,22 Q6,10 16,8 Q28,6 31,14 Q34,22 28,28 L26,34 L14,34 L12,28 Q9,26 8,22 Z" fill="#eab308" stroke="#a16207" stroke-width="2.5" stroke-linejoin="round"/><path d="M14,34 L26,34 L26,37 L14,37 Z" fill="#a16207"/><path d="M13,17 Q18,13 24,15" fill="none" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>'),
+  rings: svg40('<circle cx="20" cy="25" r="10" fill="none" stroke="#fbbf24" stroke-width="5"/><path d="M20,4 L13,11 L20,16 L27,11 Z" fill="#67e8f9" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/><path d="M13,11 L27,11" stroke="#0891b2" stroke-width="1.5"/>'),
+  midas: svg40('<path d="M20,3 L24,15 L36,20 L24,25 L20,37 L16,25 L4,20 L16,15 Z" fill="#fde047" stroke="#eab308" stroke-width="2" stroke-linejoin="round"/><circle cx="31" cy="8" r="2.5" fill="#fde047"/><circle cx="8" cy="31" r="2" fill="#fde047"/>'),
+  mindset: svg40('<circle cx="20" cy="15" r="11" fill="#fde047" stroke="#eab308" stroke-width="2.5"/><path d="M16,15 Q18,11 20,15 Q22,19 24,15" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round"/><rect x="16" y="26" width="8" height="7" rx="2" fill="#94a3b8"/><rect x="17" y="33" width="6" height="3" rx="1.5" fill="#64748b"/><path d="M20,26 L20,29" stroke="#ca8a04" stroke-width="2"/>'),
+  pow_coffee: svg40('<rect x="7" y="13" width="19" height="16" rx="4" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/><rect x="9.5" y="17" width="14" height="8" rx="2" fill="#7c4a24"/><path d="M26,16 Q33,16 33,21 Q33,26 26,26" fill="none" stroke="#94a3b8" stroke-width="2.5"/><path d="M28,2 L22,12 L27,12 L23,22" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'),
+  pow_frenzy: svg40('<path d="M20,4 L23.5,14 L34,14 L25.5,20.5 L29,31 L20,24.5 L11,31 L14.5,20.5 L6,14 L16.5,14 Z" fill="#fbbf24" stroke="#d97706" stroke-width="2" stroke-linejoin="round"/><path d="M20,0 L20,3 M36,20 L39,20 M4,20 L1,20 M32,7 L34,5 M8,7 L6,5" stroke="#fde047" stroke-width="2.5" stroke-linecap="round"/>'),
+  pow_rain: svg40('<g transform="rotate(-12 13 12)"><rect x="5" y="6" width="16" height="10" rx="2" fill="#4ade80" stroke="#15803d" stroke-width="1.8"/><circle cx="13" cy="11" r="3" fill="none" stroke="#15803d" stroke-width="1.5"/></g><g transform="rotate(10 28 22)"><rect x="20" y="16" width="16" height="10" rx="2" fill="#4ade80" stroke="#15803d" stroke-width="1.8"/><circle cx="28" cy="21" r="3" fill="none" stroke="#15803d" stroke-width="1.5"/></g><g transform="rotate(-8 15 31)"><rect x="7" y="26" width="16" height="10" rx="2" fill="#4ade80" stroke="#15803d" stroke-width="1.8"/><circle cx="15" cy="31" r="3" fill="none" stroke="#15803d" stroke-width="1.5"/></g>'),
+  pow_warp: svg40('<circle cx="22" cy="20" r="14" fill="#e0e7ff" stroke="#4f46e5" stroke-width="3"/><path d="M22,12 L22,20 L29,24" fill="none" stroke="#312e81" stroke-width="3" stroke-linecap="round"/><path d="M5,12 Q2,20 5,28 M9,15 Q7,20 9,25" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round"/>'),
+  gift: svg40('<rect x="6" y="16" width="28" height="20" rx="3" fill="#dc2626"/><rect x="6" y="14" width="28" height="7" rx="2" fill="#b91c1c"/><rect x="17.5" y="12" width="5" height="24" fill="#fbbf24"/><path d="M20,12 Q12,12 12,7 Q12,3 16,4 Q20,5 20,12 Q20,5 24,4 Q28,3 28,7 Q28,12 20,12 Z" fill="#fbbf24" stroke="#d97706" stroke-width="1.5"/>'),
+  cap: svg40('<path d="M8,24 Q8,8 20,8 Q32,8 32,24 Q20,18 8,24 Z" fill="#d23f3f"/><rect x="5" y="21" width="30" height="6" rx="3" fill="#a92f2f"/><circle cx="20" cy="9" r="2.5" fill="#a92f2f"/>'),
+  tophat: svg40('<rect x="10" y="4" width="20" height="22" rx="2.5" fill="#1c1c24"/><rect x="10" y="19" width="20" height="5" fill="#d4a017"/><ellipse cx="20" cy="27" rx="17" ry="4" fill="#26262e"/>'),
+  crown: svg40('<path d="M7,30 L7,12 L14,20 L20,8 L26,20 L33,12 L33,30 Z" fill="#eab308" stroke="#b45309" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="26" r="2.2" fill="#dc2626"/><circle cx="20" cy="24" r="2.2" fill="#2563eb"/><circle cx="28" cy="26" r="2.2" fill="#16a34a"/>'),
+  nerd: svg40('<circle cx="12" cy="20" r="7.5" fill="rgba(255,255,255,.15)" stroke="#334155" stroke-width="3"/><circle cx="28" cy="20" r="7.5" fill="rgba(255,255,255,.15)" stroke="#334155" stroke-width="3"/><path d="M19,19 Q20,16 21,19" fill="none" stroke="#334155" stroke-width="3"/>'),
+  shades: svg40('<rect x="4" y="14" width="14" height="11" rx="4" fill="#10131c" stroke="#3a3a46" stroke-width="1.8"/><rect x="22" y="14" width="14" height="11" rx="4" fill="#10131c" stroke="#3a3a46" stroke-width="1.8"/><path d="M18,17 Q20,15 22,17" fill="none" stroke="#3a3a46" stroke-width="2.5"/><path d="M7,17.5 L12,17.5" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/>'),
+  visor: svg40('<rect x="4" y="14" width="32" height="12" rx="6" fill="rgba(34,211,238,.75)" stroke="#0e7490" stroke-width="2.5"/><path d="M8,18 L18,18" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-linecap="round"/>'),
+  beads: svg40('<g fill="#8b5e3c" stroke="#6b4226" stroke-width="1.8"><circle cx="8" cy="14" r="4"/><circle cx="12" cy="21" r="4"/><circle cx="17" cy="26" r="4"/><circle cx="23" cy="26" r="4"/><circle cx="28" cy="21" r="4"/><circle cx="32" cy="14" r="4"/></g>'),
+  watch: svg40('<rect x="15" y="3" width="10" height="34" rx="3" fill="#8a6d3b"/><circle cx="20" cy="20" r="10" fill="#f8fafc" stroke="#d4a017" stroke-width="3.5"/><path d="M20,20 L20,14 M20,20 L24.5,22" stroke="#1f2937" stroke-width="2" stroke-linecap="round"/>'),
+  gem: svg40('<path d="M6,12 Q20,26 34,12" fill="none" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round"/><path d="M20,20 L11,27 L20,38 L29,27 Z" fill="#67e8f9" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/><path d="M11,27 L29,27" stroke="#0891b2" stroke-width="1.5"/>'),
+  auraB: svg40('<circle cx="20" cy="20" r="12" fill="none" stroke="#3b82f6" stroke-width="4" opacity=".9"/><circle cx="20" cy="20" r="17" fill="none" stroke="#3b82f6" stroke-width="2" opacity=".4"/>'),
+  auraP: svg40('<circle cx="20" cy="20" r="12" fill="none" stroke="#a855f7" stroke-width="4" opacity=".9"/><circle cx="20" cy="20" r="17" fill="none" stroke="#a855f7" stroke-width="2" opacity=".4"/>'),
+  auraG: svg40('<circle cx="20" cy="20" r="12" fill="none" stroke="#facc15" stroke-width="4" opacity=".9"/><circle cx="20" cy="20" r="17" fill="none" stroke="#facc15" stroke-width="2" opacity=".4"/>'),
+  coin: svg40('<circle cx="20" cy="20" r="16" fill="#fbbf24" stroke="#92400e" stroke-width="3"/><circle cx="20" cy="20" r="11" fill="none" stroke="#b45309" stroke-width="2" opacity=".6"/><text x="20" y="27" text-anchor="middle" font-size="18" font-weight="900" fill="#fff8e1" font-family="Arial">$</text>'),
+};
+function medalIcon(tier) { // 0 bronze, 1 silver, 2 gold
+  const c = ["#b45309", "#94a3b8", "#eab308"][tier], d = ["#7c3a03", "#64748b", "#b45309"][tier];
+  return svg40('<path d="M13,3 L20,14 L27,3 L33,3 L24,17 L16,17 L7,3 Z" fill="#dc2626"/><circle cx="20" cy="26" r="11" fill="' + c + '" stroke="' + d + '" stroke-width="2.5"/><path d="M20,20 L21.8,24 L26,24.4 L22.8,27.2 L23.8,31.4 L20,29 L16.2,31.4 L17.2,27.2 L14,24.4 L18.2,24 Z" fill="#fff8e1"/>');
+}
+const TAB_ICONS = {
+  business: '<svg viewBox="0 0 40 40"><rect x="7" y="10" width="11" height="24" fill="currentColor" opacity=".65"/><rect x="21" y="4" width="12" height="30" fill="currentColor"/><g fill="#0b1020"><rect x="24" y="8" width="2.5" height="2.5"/><rect x="28.5" y="8" width="2.5" height="2.5"/><rect x="24" y="13" width="2.5" height="2.5"/><rect x="28.5" y="18" width="2.5" height="2.5"/><rect x="10" y="14" width="2.5" height="2.5"/><rect x="14" y="19" width="2.5" height="2.5"/></g></svg>',
+  upgrades: '<svg viewBox="0 0 40 40"><path d="M17,8 Q17,5 20,5 Q23,5 23,8 L23,19 L27,20 Q32,21 32,26 L31,31 Q30,35 25,35 L17,35 Q13,35 11,31 L8,26 Q7,23 10,22 Q12,21.5 13,23.5 L17,26 Z" fill="currentColor"/></svg>',
+  boosts: '<svg viewBox="0 0 40 40"><path d="M24,3 L10,22 L18,22 L15,37 L30,17 L22,17 Z" fill="currentColor"/></svg>',
+  style: '<svg viewBox="0 0 40 40"><path d="M14,6 L20,10 L26,6 L35,12 L31,18 L28,16 L28,34 L12,34 L12,16 L9,18 L5,12 Z" fill="currentColor"/></svg>',
+  awards: '<svg viewBox="0 0 40 40"><path d="M13,3 L20,13 L27,3 L32,3 L24,16 L16,16 L8,3 Z" fill="currentColor" opacity=".7"/><circle cx="20" cy="26" r="10" fill="currentColor"/></svg>',
+  stats: '<svg viewBox="0 0 40 40"><rect x="6" y="22" width="7" height="13" rx="1.5" fill="currentColor" opacity=".6"/><rect x="16.5" y="13" width="7" height="22" rx="1.5" fill="currentColor" opacity=".8"/><rect x="27" y="5" width="7" height="30" rx="1.5" fill="currentColor"/></svg>',
+};
+
+/* ================= Game data ================= */
+
+const BUSINESSES = [
+  { id:"lemonade", name:"Lemonade Stand", cost:50,  inc:1 },
+  { id:"foodcart", name:"Food Cart",      cost:500, inc:8 },
+  { id:"coffee",   name:"Coffee Shop",    cost:5e3, inc:60 },
+  { id:"arcade",   name:"Retro Arcade",   cost:5e4, inc:420 },
+  { id:"startup",  name:"Tech Startup",   cost:5e5, inc:3200 },
+  { id:"estate",   name:"Real Estate",    cost:5e6, inc:24000 },
+  { id:"bank",     name:"Private Bank",   cost:5e7, inc:180000 },
+  { id:"space",    name:"Space Company",  cost:5e8, inc:1350000 },
+];
+const BIZ_GROWTH = 1.15;
+const MILESTONE = 10;
+
+const UPGRADES = [
+  { id:"fingers", name:"Trained Fingers",     cost:25,   add:1,     growth:1.6 },
+  { id:"gloves",  name:"Golden Gloves",       cost:500,  add:10,    growth:1.6 },
+  { id:"rings",   name:"Diamond Knuckles",    cost:8e3,  add:120,   growth:1.6 },
+  { id:"midas",   name:"Midas Touch",         cost:15e4, add:1500,  growth:1.6 },
+  { id:"mindset", name:"Billionaire Mindset", cost:3e6,  add:25000, growth:1.6 },
+];
+
+const POWERUPS = [
+  { id:"coffee", icon:"pow_coffee", name:"Coffee Rush",   desc:"2× tap money for 60s",  type:"boost", tapMult:2, allMult:1, dur:60 },
+  { id:"frenzy", icon:"pow_frenzy", name:"Golden Frenzy", desc:"3× ALL income for 30s", type:"boost", tapMult:3, allMult:3, dur:30 },
+  { id:"rain",   icon:"pow_rain",   name:"Money Rain",    desc:"Instant cash drop",     type:"instant" },
+  { id:"warp",   icon:"pow_warp",   name:"Time Warp",     desc:"Collect 1 hour of passive income now", type:"instant" },
+];
+
+const CLOTHING = [
+  { id:"cap",     slot:"hat",     name:"Snapback Cap",   cost:1e3,  bonus:{tap:0.05},              desc:"+5% tap money" },
+  { id:"tophat",  slot:"hat",     name:"Top Hat",        cost:1e5,  bonus:{tap:0.15},              desc:"+15% tap money" },
+  { id:"crown",   slot:"hat",     name:"Royal Crown",    cost:25e6, bonus:{tap:0.5},               desc:"+50% tap money" },
+  { id:"nerd",    slot:"glasses", name:"Smart Glasses",  cost:5e3,  bonus:{passive:0.05},          desc:"+5% passive income" },
+  { id:"shades",  slot:"glasses", name:"Boss Shades",    cost:25e4, bonus:{passive:0.15},          desc:"+15% passive income" },
+  { id:"visor",   slot:"glasses", name:"Cyber Visor",    cost:5e6,  bonus:{passive:0.30},          desc:"+30% passive income" },
+  { id:"beads",   slot:"chain",   name:"Lucky Beads",    cost:5e4,  bonus:{all:0.05},              desc:"+5% ALL income" },
+  { id:"watch",   slot:"chain",   name:"Luxury Watch",   cost:2e6,  bonus:{all:0.10},              desc:"+10% ALL income" },
+  { id:"gem",     slot:"chain",   name:"Diamond Chain",  cost:1e8,  bonus:{all:0.25},              desc:"+25% ALL income" },
+  { id:"auraB",   slot:"aura",    name:"Blue Aura",      cost:25e3, bonus:{all:0.02}, css:"blue",   desc:"Glow up! +2% ALL" },
+  { id:"auraP",   slot:"aura",    name:"Purple Aura",    cost:1e6,  bonus:{all:0.05}, css:"purple", desc:"Rare glow. +5% ALL" },
+  { id:"auraG",   slot:"aura",    name:"Gold Aura",      cost:5e7,  bonus:{all:0.12}, css:"gold",   desc:"Legendary glow. +12% ALL" },
+];
+
+const ACHIEVEMENTS = [
+  { id:"tap100",   name:"Finger Warmup",    reward:0.02, goal:() => [S.taps, 100],            desc:"Tap 100 times" },
+  { id:"tap2500",  name:"Tap Machine",      reward:0.03, goal:() => [S.taps, 2500],           desc:"Tap 2,500 times" },
+  { id:"tap25k",   name:"Tap God",          reward:0.05, goal:() => [S.taps, 25000],          desc:"Tap 25,000 times" },
+  { id:"earn1k",   name:"First Grand",      reward:0.02, goal:() => [S.totalEarned, 1e3],     desc:"Earn $1K lifetime" },
+  { id:"earn1m",   name:"Millionaire",      reward:0.03, goal:() => [S.totalEarned, 1e6],     desc:"Earn $1M lifetime" },
+  { id:"earn1b",   name:"Billionaire",      reward:0.05, goal:() => [S.totalEarned, 1e9],     desc:"Earn $1B lifetime" },
+  { id:"biz10",    name:"Entrepreneur",     reward:0.02, goal:() => [bizTotal(), 10],         desc:"Own 10 businesses" },
+  { id:"biz50",    name:"Business Empire",  reward:0.04, goal:() => [bizTotal(), 50],         desc:"Own 50 businesses" },
+  { id:"bizAll",   name:"Mogul",            reward:0.04, goal:() => [BUSINESSES.filter(b => (S.biz[b.id]||0) > 0).length, BUSINESSES.length], desc:"Own every business type" },
+  { id:"style3",   name:"Fresh Look",       reward:0.02, goal:() => [S.owned.length, 3],      desc:"Own 3 style items" },
+  { id:"styleAll", name:"Fashion Icon",     reward:0.06, goal:() => [S.owned.length, CLOTHING.length], desc:"Own every style item" },
+  { id:"boost10",  name:"Boost Addict",     reward:0.03, goal:() => [powerTotal(), 10],       desc:"Use 10 boosts" },
+  { id:"reborn1",  name:"Reborn",           reward:0.05, goal:() => [S.prestiges, 1],         desc:"Prestige once" },
+  { id:"reborn5",  name:"Ascended",         reward:0.10, goal:() => [S.prestiges, 5],         desc:"Prestige 5 times" },
+];
+
+const SLOT_NAMES = { hat:"Hats", glasses:"Glasses", chain:"Bling", aura:"Auras" };
+const OFFLINE_CAP_SEC = 2 * 3600;
+const PRESTIGE_REQ = 1e7;
+const PRESTIGE_BONUS = 0.10;
+const SAVE_KEY = "tapTycoonSave_v1";
+
+/* ================= State ================= */
+
+let S = {
+  money: 0,
+  totalEarned: 0,
+  runEarned: 0,
+  taps: 0,
+  biz: {},
+  ups: {},
+  powerBuys: {},
+  owned: [],
+  equipped: { hat:null, glasses:null, chain:null, aura:null },
+  activeBoosts: [],
+  ach: [],
+  prestiges: 0,
+  prestigePoints: 0,
+  buyAmt: 1,
+  lastDaily: "",
+  lastSeen: Date.now(),
+  sound: true,
+  haptics: true,
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      S = Object.assign(S, d);
+      S.equipped = Object.assign({ hat:null, glasses:null, chain:null, aura:null }, d.equipped);
+      if (d.runEarned === undefined) S.runEarned = S.totalEarned;
+    }
+  } catch (e) { /* corrupted save -> start fresh */ }
+}
+function save() {
+  S.lastSeen = Date.now();
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {}
+}
+
+/* ================= Derived values ================= */
+
+function bizTotal()   { return Object.values(S.biz).reduce((a, b) => a + b, 0); }
+function powerTotal() { return Object.values(S.powerBuys).reduce((a, b) => a + b, 0); }
+
+function clothingBonus(kind) {
+  let mult = 1;
+  for (const slot in S.equipped) {
+    const id = S.equipped[slot];
+    if (!id) continue;
+    const c = CLOTHING.find(c => c.id === id);
+    if (c && c.bonus[kind]) mult += c.bonus[kind];
+  }
+  return mult;
+}
+function achBonus() {
+  let mult = 1;
+  for (const id of S.ach) {
+    const a = ACHIEVEMENTS.find(a => a.id === id);
+    if (a) mult += a.reward;
+  }
+  return mult;
+}
+function prestigeBonus() { return 1 + S.prestigePoints * PRESTIGE_BONUS; }
+function globalMult() { return achBonus() * prestigeBonus() * clothingBonus("all"); }
+
+function boostMult(kind) {
+  const now = Date.now();
+  let mult = 1;
+  for (const ab of S.activeBoosts) {
+    if (ab.until <= now) continue;
+    const p = POWERUPS.find(p => p.id === ab.id);
+    if (!p) continue;
+    if (kind === "tap") mult *= p.tapMult;
+    else mult *= p.allMult;
+  }
+  return mult;
+}
+
+function tapValue() {
+  let v = 1;
+  for (const u of UPGRADES) v += u.add * (S.ups[u.id] || 0);
+  return v * clothingBonus("tap") * globalMult() * boostMult("tap");
+}
+function milestoneMult(count) { return Math.pow(2, Math.floor(count / MILESTONE)); }
+function perSec() {
+  let v = 0;
+  for (const b of BUSINESSES) {
+    const count = S.biz[b.id] || 0;
+    v += b.inc * count * milestoneMult(count);
+  }
+  return v * clothingBonus("passive") * globalMult() * boostMult("all");
+}
+
+function seriesCost(base, growth, owned, n) {
+  return Math.ceil(base * Math.pow(growth, owned) * (Math.pow(growth, n) - 1) / (growth - 1));
+}
+function maxAffordable(base, growth, owned) {
+  const first = base * Math.pow(growth, owned);
+  if (S.money < first) return 0;
+  const n = Math.floor(Math.log(S.money * (growth - 1) / first + 1) / Math.log(growth));
+  return Math.max(1, n);
+}
+function bulkInfo(base, growth, owned) {
+  let n = S.buyAmt === "max" ? maxAffordable(base, growth, owned) : S.buyAmt;
+  if (n < 1) n = 1;
+  return { n, cost: seriesCost(base, growth, owned, n) };
+}
+
+function powerCost(p) {
+  const ps = perSec(), tv = tapValue();
+  switch (p.id) {
+    case "coffee": return Math.max(500,  Math.round(ps * 45 + tv * 30));
+    case "frenzy": return Math.max(2500, Math.round(ps * 120 + tv * 60));
+    case "rain":   return Math.max(1000, Math.round((tv * 100 + ps * 300) * 0.6));
+    case "warp":   return Math.max(5000, Math.round(ps * 1800));
+    default: return 1e9;
+  }
+}
+
+function prestigeGain() {
+  return Math.floor(Math.sqrt(S.runEarned / PRESTIGE_REQ));
+}
+
+/* ================= Money helpers ================= */
+
+const SUFFIXES = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp"];
+function fmt(n) {
+  if (n < 0) return "-" + fmt(-n);
+  if (n < 1000) return "$" + Math.floor(n);
+  let tier = Math.floor(Math.log10(n) / 3);
+  tier = Math.min(tier, SUFFIXES.length - 1);
+  const scaled = n / Math.pow(10, tier * 3);
+  return "$" + (scaled >= 100 ? Math.floor(scaled) : scaled.toFixed(scaled >= 10 ? 1 : 2)) + SUFFIXES[tier];
+}
+
+function earn(amount) {
+  S.money += amount;
+  S.totalEarned += amount;
+  S.runEarned += amount;
+}
+function spend(amount) {
+  if (S.money < amount) return false;
+  S.money -= amount;
+  return true;
+}
+
+/* ================= Audio & haptics ================= */
+
+let audioCtx = null;
+function blip(freq, dur, vol) {
+  if (!S.sound) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "triangle"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+function buzz(ms) {
+  if (S.haptics && navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
+}
+
+/* ================= DOM refs ================= */
+
+const $ = id => document.getElementById(id);
+const moneyEl = $("money"), tapValEl = $("tapVal"), secValEl = $("secVal");
+const boostsEl = $("boosts"), panelEl = $("panel"), tapzone = $("tapzone");
+const avatarEl = $("avatar"), auraEl = $("aura");
+let currentTab = "business";
+let liveRows = [];
+
+/* ================= Tabs (built from icon set) ================= */
+
+const tabsEl = $("tabs");
+for (const [id, label] of [["business","Business"],["upgrades","Upgrades"],["boosts","Boosts"],["style","Style"],["awards","Awards"],["stats","Stats"]]) {
+  const b = document.createElement("button");
+  b.className = "tab" + (id === "business" ? " active" : "");
+  b.dataset.tab = id;
+  b.innerHTML = TAB_ICONS[id] + label;
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    b.classList.add("active");
+    currentTab = id;
+    renderTab();
+    buzz(8);
+  });
+  tabsEl.appendChild(b);
+}
+
+/* ================= Tapping ================= */
+
+let squishTimer = null, popTimer = null;
+tapzone.addEventListener("pointerdown", (e) => {
+  const v = tapValue();
+  earn(v);
+  S.taps++;
+  buzz(10);
+  blip(700 + Math.random() * 300, 0.07, 0.06);
+
+  const f = document.createElement("div");
+  f.className = "float";
+  if (Math.random() < 0.18) f.innerHTML = '<div class="coinDot">$</div>';
+  else f.textContent = "+" + fmt(v);
+  const rect = tapzone.getBoundingClientRect();
+  f.style.left = (e.clientX - rect.left - 20 + (Math.random() * 24 - 12)) + "px";
+  f.style.top  = (e.clientY - rect.top - 30) + "px";
+  tapzone.appendChild(f);
+  setTimeout(() => f.remove(), 900);
+  if (tapzone.querySelectorAll(".float").length > 25) tapzone.querySelector(".float").remove();
+
+  avatarEl.classList.add("squish");
+  clearTimeout(squishTimer);
+  squishTimer = setTimeout(() => avatarEl.classList.remove("squish"), 70);
+
+  moneyEl.classList.add("pop");
+  clearTimeout(popTimer);
+  popTimer = setTimeout(() => moneyEl.classList.remove("pop"), 90);
+
+  updateHUD();
+});
+
+/* ================= Shop rendering ================= */
+
+function makeRow(iconHTML, name, desc, ownedText, btnText, onBuy) {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML =
+    '<div class="icon">' + iconHTML + '</div>' +
+    '<div class="info"><div class="name">' + name +
+    (ownedText ? ' <span class="owned">' + ownedText + '</span>' : '') +
+    '</div><div class="desc">' + desc + '</div></div>';
+  const btn = document.createElement("button");
+  btn.className = "buy";
+  btn.textContent = btnText;
+  btn.addEventListener("click", onBuy);
+  row.appendChild(btn);
+  return { row, btn, info: row.querySelector(".info") };
+}
+
+function addAmtSelector() {
+  const bar = document.createElement("div");
+  bar.id = "amtRow";
+  bar.innerHTML = '<span>BUY</span>';
+  for (const amt of [1, 10, "max"]) {
+    const b = document.createElement("button");
+    b.className = "amtBtn" + (S.buyAmt === amt ? " active" : "");
+    b.textContent = amt === "max" ? "MAX" : "×" + amt;
+    b.addEventListener("click", () => { S.buyAmt = amt; buzz(8); save(); renderTab(); });
+    bar.appendChild(b);
+  }
+  panelEl.appendChild(bar);
+}
+
+function renderTab() {
+  panelEl.innerHTML = "";
+  liveRows = [];
+  if (currentTab === "business") renderBusiness();
+  else if (currentTab === "upgrades") renderUpgrades();
+  else if (currentTab === "boosts") renderBoosts();
+  else if (currentTab === "style") renderStyle();
+  else if (currentTab === "awards") renderAwards();
+  else renderStats();
+  refreshRows();
+}
+
+function renderBusiness() {
+  addAmtSelector();
+  for (const b of BUSINESSES) {
+    const count = S.biz[b.id] || 0;
+    const mult = milestoneMult(count);
+    const { row, btn, info } = makeRow(
+      ICONS[b.id], b.name,
+      "+" + fmt(b.inc * mult).slice(1) + "/sec each" + (mult > 1 ? " (×" + mult + " milestone)" : ""),
+      count ? "×" + count : "", "",
+      () => {
+        const { n, cost } = bulkInfo(b.cost, BIZ_GROWTH, S.biz[b.id] || 0);
+        if (!spend(cost)) return;
+        S.biz[b.id] = (S.biz[b.id] || 0) + n;
+        buzz(20); blip(500, 0.12, 0.08);
+        const newMult = milestoneMult(S.biz[b.id]);
+        toast(newMult > mult
+          ? b.name + " milestone! Income ×" + newMult
+          : b.name + " ×" + S.biz[b.id]);
+        save(); renderTab(); updateHUD();
+      }
+    );
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.innerHTML = '<i style="width:' + ((count % MILESTONE) / MILESTONE * 100) + '%"></i>';
+    info.appendChild(bar);
+    liveRows.push({ btn,
+      getCost:  () => bulkInfo(b.cost, BIZ_GROWTH, S.biz[b.id] || 0).cost,
+      getLabel: () => {
+        const { n, cost } = bulkInfo(b.cost, BIZ_GROWTH, S.biz[b.id] || 0);
+        return (n > 1 ? "×" + n + " " : "") + fmt(cost);
+      },
+    });
+    panelEl.appendChild(row);
+  }
+}
+
+function renderUpgrades() {
+  addAmtSelector();
+  for (const u of UPGRADES) {
+    const count = S.ups[u.id] || 0;
+    const { row, btn } = makeRow(
+      ICONS[u.id], u.name, "+" + fmt(u.add).slice(1) + " per tap",
+      count ? "Lv." + count : "", "",
+      () => {
+        const { n, cost } = bulkInfo(u.cost, u.growth, S.ups[u.id] || 0);
+        if (!spend(cost)) return;
+        S.ups[u.id] = (S.ups[u.id] || 0) + n;
+        buzz(20); blip(600, 0.12, 0.08);
+        toast(u.name + " Lv." + S.ups[u.id]);
+        save(); renderTab(); updateHUD();
+      }
+    );
+    liveRows.push({ btn,
+      getCost:  () => bulkInfo(u.cost, u.growth, S.ups[u.id] || 0).cost,
+      getLabel: () => {
+        const { n, cost } = bulkInfo(u.cost, u.growth, S.ups[u.id] || 0);
+        return (n > 1 ? "×" + n + " " : "") + fmt(cost);
+      },
+    });
+    panelEl.appendChild(row);
+  }
+}
+
+function dailyAvailable() { return S.lastDaily !== new Date().toDateString(); }
+
+function renderBoosts() {
+  const avail = dailyAvailable();
+  const gift = makeRow(ICONS.gift, "Daily Gift", avail ? "Free cash + a free Golden Frenzy. Every day!" : "Come back tomorrow for more!",
+    "", avail ? "FREE" : "✓ Claimed",
+    () => {
+      if (!dailyAvailable()) return;
+      S.lastDaily = new Date().toDateString();
+      const gain = Math.max(1000, perSec() * 1800 + tapValue() * 200);
+      earn(gain);
+      const now = Date.now();
+      const existing = S.activeBoosts.find(ab => ab.id === "frenzy");
+      if (existing) existing.until = Math.max(existing.until, now) + 30000;
+      else S.activeBoosts.push({ id:"frenzy", until: now + 30000 });
+      buzz([30, 40, 30]); blip(880, 0.2, 0.1);
+      toast("Daily Gift: +" + fmt(gain) + " and Golden Frenzy!");
+      rainCoins();
+      save(); renderTab(); updateHUD();
+    });
+  if (avail) gift.btn.classList.add("free");
+  else gift.btn.disabled = true;
+  panelEl.appendChild(gift.row);
+
+  for (const p of POWERUPS) {
+    const { row, btn } = makeRow(
+      ICONS[p.icon], p.name, p.desc, "", fmt(powerCost(p)),
+      () => {
+        const cost = powerCost(p);
+        if (!spend(cost)) return;
+        S.powerBuys[p.id] = (S.powerBuys[p.id] || 0) + 1;
+        if (p.type === "boost") {
+          const now = Date.now();
+          const existing = S.activeBoosts.find(ab => ab.id === p.id);
+          if (existing) existing.until = Math.max(existing.until, now) + p.dur * 1000;
+          else S.activeBoosts.push({ id: p.id, until: now + p.dur * 1000 });
+          toast(p.name + " active!");
+        } else if (p.id === "rain") {
+          const gain = tapValue() * 100 + perSec() * 300;
+          earn(gain);
+          toast("Money Rain: +" + fmt(gain) + "!");
+          rainCoins();
+        } else if (p.id === "warp") {
+          const gain = perSec() * 3600;
+          earn(gain);
+          toast("Time Warp: +" + fmt(gain) + "!");
+        }
+        buzz([30, 40, 30]); blip(880, 0.2, 0.1);
+        save(); renderTab(); updateHUD();
+      }
+    );
+    liveRows.push({ btn, getCost: () => powerCost(p), getLabel: () => fmt(powerCost(p)) });
+    panelEl.appendChild(row);
+  }
+  const note = document.createElement("div");
+  note.className = "desc";
+  note.style.cssText = "color:#8892b8;font-size:11.5px;text-align:center;padding:6px;";
+  note.textContent = "Boost prices scale with your income — they always stay useful.";
+  panelEl.appendChild(note);
+}
+
+function renderStyle() {
+  for (const slot of ["hat", "glasses", "chain", "aura"]) {
+    const title = document.createElement("div");
+    title.className = "sectionTitle";
+    title.textContent = SLOT_NAMES[slot];
+    panelEl.appendChild(title);
+
+    for (const c of CLOTHING.filter(c => c.slot === slot)) {
+      const isOwned = S.owned.includes(c.id);
+      const isEquipped = S.equipped[slot] === c.id;
+      const btnText = !isOwned ? fmt(c.cost) : (isEquipped ? "Wearing" : "Wear");
+      const { row, btn } = makeRow(ICONS[c.id], c.name, c.desc, "", btnText, () => {
+        if (!S.owned.includes(c.id)) {
+          if (!spend(c.cost)) return;
+          S.owned.push(c.id);
+          S.equipped[slot] = c.id;
+          buzz(25); blip(760, 0.15, 0.1);
+          toast(c.name + " unlocked & equipped!");
+        } else {
+          S.equipped[slot] = (S.equipped[slot] === c.id) ? null : c.id;
+          buzz(12);
+        }
+        save(); renderTab(); updateAvatar(); updateHUD();
+      });
+      if (isOwned) {
+        btn.disabled = false;
+        if (isEquipped) btn.classList.add("equipped");
+      } else {
+        liveRows.push({ btn, getCost: () => c.cost });
+      }
+      panelEl.appendChild(row);
+    }
+  }
+}
+
+function renderAwards() {
+  const head = document.createElement("div");
+  head.className = "sectionTitle";
+  head.textContent = "Achievements " + S.ach.length + " / " + ACHIEVEMENTS.length + " — each gives a permanent income bonus";
+  panelEl.appendChild(head);
+
+  for (const a of ACHIEVEMENTS) {
+    const done = S.ach.includes(a.id);
+    const [cur, target] = a.goal();
+    const pct = Math.min(100, cur / target * 100);
+    const tier = a.reward >= 0.05 ? 2 : a.reward >= 0.03 ? 1 : 0;
+    const { row, btn, info } = makeRow(
+      medalIcon(tier), a.name, a.desc + " · +" + Math.round(a.reward * 100) + "% ALL income",
+      "", done ? "✓ Done" : Math.floor(pct) + "%", () => {});
+    btn.disabled = true;
+    if (done) { row.classList.add("done"); btn.classList.add("free"); btn.disabled = false; btn.style.pointerEvents = "none"; }
+    const bar = document.createElement("div");
+    bar.className = "bar gold";
+    const fill = document.createElement("i");
+    fill.style.width = pct + "%";
+    bar.appendChild(fill);
+    info.appendChild(bar);
+    if (!done) liveRows.push({ btn, getLabel: () => Math.floor(Math.min(100, a.goal()[0] / a.goal()[1] * 100)) + "%",
+                               barEl: fill, getPct: () => Math.min(100, a.goal()[0] / a.goal()[1] * 100) });
+    panelEl.appendChild(row);
+  }
+}
+
+function renderStats() {
+  const card = document.createElement("div");
+  card.id = "prestigeCard";
+  const gain = prestigeGain();
+  card.innerHTML =
+    "<h3>Prestige</h3>" +
+    "<p>Reset your money, businesses and upgrades to earn Prestige Points. " +
+    "Each point gives <b>+" + Math.round(PRESTIGE_BONUS * 100) + "% ALL income forever</b>. " +
+    "You keep your style items, achievements and points.<br><br>" +
+    "Points: <b>" + S.prestigePoints + "</b> (+" + Math.round(S.prestigePoints * PRESTIGE_BONUS * 100) + "% forever) · Prestiges: <b>" + S.prestiges + "</b></p>";
+  const btn = document.createElement("button");
+  btn.id = "prestigeBtn";
+  if (gain >= 1) {
+    btn.textContent = "Prestige now: +" + gain + " point" + (gain > 1 ? "s" : "") + " (+" + Math.round(gain * PRESTIGE_BONUS * 100) + "% forever)";
+    btn.onclick = () => {
+      if (!confirm("Prestige now for +" + gain + " Prestige Point" + (gain > 1 ? "s" : "") + "?\n\nThis resets your money, businesses, upgrades and active boosts. You keep style items, achievements and prestige points.")) return;
+      S.prestigePoints += gain;
+      S.prestiges++;
+      S.money = 0; S.biz = {}; S.ups = {}; S.activeBoosts = []; S.runEarned = 0;
+      buzz([40, 60, 40]); blip(990, 0.3, 0.12);
+      toast("Reborn! +" + gain + " Prestige Point" + (gain > 1 ? "s" : ""));
+      save(); renderTab(); updateHUD(); updateAvatar();
+    };
+  } else {
+    btn.textContent = "Earn " + fmt(PRESTIGE_REQ) + " this run to unlock (" + fmt(S.runEarned) + " so far)";
+    btn.disabled = true;
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.marginTop = "8px";
+    bar.innerHTML = '<i style="width:' + Math.min(100, S.runEarned / PRESTIGE_REQ * 100) + '%"></i>';
+    card.appendChild(bar);
+  }
+  card.appendChild(btn);
+  panelEl.appendChild(card);
+
+  const bonusPct = Math.round((globalMult() - 1) * 100);
+  const stats = [
+    ["Current cash", fmt(S.money)],
+    ["Total earned (lifetime)", fmt(S.totalEarned)],
+    ["Earned this run", fmt(S.runEarned)],
+    ["Total taps", S.taps.toLocaleString()],
+    ["Businesses owned", bizTotal()],
+    ["Style items owned", S.owned.length + " / " + CLOTHING.length],
+    ["Achievements", S.ach.length + " / " + ACHIEVEMENTS.length],
+    ["Boosts used", powerTotal()],
+    ["Permanent bonus", "+" + bonusPct + "%"],
+  ];
+  for (const [k, v] of stats) {
+    const d = document.createElement("div");
+    d.className = "statrow";
+    d.innerHTML = "<span>" + k + "</span><b>" + v + "</b>";
+    panelEl.appendChild(d);
+  }
+  const soundBtn = document.createElement("button");
+  soundBtn.className = "settingsBtn";
+  soundBtn.textContent = "Sound: " + (S.sound ? "ON" : "OFF");
+  soundBtn.onclick = () => { S.sound = !S.sound; save(); renderTab(); };
+  panelEl.appendChild(soundBtn);
+
+  const hapBtn = document.createElement("button");
+  hapBtn.className = "settingsBtn";
+  hapBtn.textContent = "Vibration: " + (S.haptics ? "ON" : "OFF");
+  hapBtn.onclick = () => { S.haptics = !S.haptics; save(); renderTab(); };
+  panelEl.appendChild(hapBtn);
+
+  const resetBtn = document.createElement("button");
+  resetBtn.className = "settingsBtn danger";
+  resetBtn.textContent = "Reset all progress";
+  resetBtn.onclick = () => {
+    if (confirm("Delete ALL progress and start over?")) {
+      localStorage.removeItem(SAVE_KEY);
+      location.reload();
+    }
+  };
+  panelEl.appendChild(resetBtn);
+}
+
+function refreshRows() {
+  for (const r of liveRows) {
+    if (r.getCost) r.btn.disabled = S.money < r.getCost();
+    if (r.getLabel) r.btn.textContent = r.getLabel();
+    if (r.barEl) r.barEl.style.width = r.getPct() + "%";
+  }
+}
+
+/* ================= Achievements ================= */
+
+function checkAchievements() {
+  for (const a of ACHIEVEMENTS) {
+    if (S.ach.includes(a.id)) continue;
+    const [cur, target] = a.goal();
+    if (cur >= target) {
+      S.ach.push(a.id);
+      toast("Achievement: " + a.name + "! +" + Math.round(a.reward * 100) + "% income forever");
+      buzz([20, 30, 20]); blip(1040, 0.25, 0.1);
+      save();
+      if (currentTab === "awards" || currentTab === "stats") renderTab();
+    }
+  }
+}
+
+/* ================= HUD & character ================= */
+
+function updateHUD() {
+  moneyEl.textContent = fmt(S.money);
+  tapValEl.textContent = fmt(tapValue());
+  secValEl.textContent = fmt(perSec());
+  const chip = $("prestigeChip");
+  if (S.prestigePoints > 0) {
+    chip.style.display = "";
+    $("prestigeVal").textContent = "+" + Math.round(S.prestigePoints * PRESTIGE_BONUS * 100) + "%";
+  } else chip.style.display = "none";
+}
+
+const WEAR_GROUPS = {
+  hat:     { cap:"w-cap", tophat:"w-tophat", crown:"w-crown" },
+  glasses: { nerd:"w-nerd", shades:"w-shades", visor:"w-visor" },
+  chain:   { beads:"w-beads", watch:"w-watch", gem:"w-gem" },
+};
+function updateAvatar() {
+  for (const slot in WEAR_GROUPS) {
+    for (const itemId in WEAR_GROUPS[slot]) {
+      $(WEAR_GROUPS[slot][itemId]).style.display = S.equipped[slot] === itemId ? "" : "none";
+    }
+  }
+  const aura = CLOTHING.find(c => c.id === S.equipped.aura);
+  auraEl.className = aura ? aura.css : "";
+  // face gets happier (and greedier) with wealth
+  const t = S.totalEarned;
+  $("m1").style.display = t < 1e4 ? "" : "none";
+  $("m2").style.display = (t >= 1e4 && t < 1e6) ? "" : "none";
+  $("m3").style.display = t >= 1e6 ? "" : "none";
+  $("eyesN").style.display = t < 1e9 ? "" : "none";
+  $("eyesR").style.display = t >= 1e9 ? "" : "none";
+}
+
+function updateBoostPills() {
+  const now = Date.now();
+  S.activeBoosts = S.activeBoosts.filter(ab => ab.until > now);
+  boostsEl.innerHTML = "";
+  for (const ab of S.activeBoosts) {
+    const p = POWERUPS.find(p => p.id === ab.id);
+    if (!p) continue;
+    const left = Math.ceil((ab.until - now) / 1000);
+    const pill = document.createElement("span");
+    pill.className = "boostpill";
+    pill.textContent = p.name + " " + left + "s";
+    boostsEl.appendChild(pill);
+  }
+}
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+function rainCoins() {
+  for (let i = 0; i < 14; i++) {
+    setTimeout(() => {
+      const f = document.createElement("div");
+      f.className = "float";
+      f.innerHTML = '<div class="coinDot">$</div>';
+      f.style.left = (Math.random() * 90 + 5) + "%";
+      f.style.top = (Math.random() * 60 + 10) + "%";
+      tapzone.appendChild(f);
+      setTimeout(() => f.remove(), 900);
+    }, i * 60);
+  }
+}
+
+/* ================= Offline earnings ================= */
+
+function offlineEarnings() {
+  const elapsed = Math.min((Date.now() - S.lastSeen) / 1000, OFFLINE_CAP_SEC);
+  if (elapsed < 60) return;
+  const gain = perSec() * elapsed;
+  if (gain < 1) return;
+  earn(gain);
+  const mins = Math.round(elapsed / 60);
+  $("modalEmoji").innerHTML = ICONS.coin;
+  $("modalTitle").textContent = "Welcome back!";
+  $("modalText").textContent = "Your businesses worked for " + (mins >= 60 ? Math.floor(mins / 60) + "h " + (mins % 60) + "m" : mins + " min") + " while you were away.";
+  $("modalGain").textContent = "+" + fmt(gain);
+  $("modal").classList.add("show");
+}
+$("modalBtn").addEventListener("click", () => {
+  $("modal").classList.remove("show");
+  buzz(20); blip(880, 0.2, 0.1);
+  save();
+});
+
+/* ================= Game loop ================= */
+
+let lastTick = Date.now();
+setInterval(() => {
+  const now = Date.now();
+  const dt = Math.min((now - lastTick) / 1000, 5);
+  lastTick = now;
+  const ps = perSec();
+  if (ps > 0) earn(ps * dt);
+  updateHUD();
+  updateBoostPills();
+  refreshRows();
+}, 200);
+
+setInterval(checkAchievements, 1000);
+setInterval(save, 3000);
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+window.addEventListener("pagehide", save);
+
+document.addEventListener("dblclick", e => e.preventDefault(), { passive:false });
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* ================= Boot ================= */
+
+load();
+offlineEarnings();
+updateAvatar();
+updateHUD();
+renderTab();
+checkAchievements();
+
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
