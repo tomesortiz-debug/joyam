@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -61,3 +61,19 @@ jobs:
         with:
           name: tap-tycoon-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish APK to the "latest" release (one-tap phone download)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk TapTycoon.apk
+          gh release delete latest --cleanup-tag --yes || true
+          gh release create latest TapTycoon.apk \
+            --title "Tap Tycoon — latest Android build" \
+            --notes "Direct install (no Play Store needed):
+
+          1. Open this page on your Android phone and tap **TapTycoon.apk** below.
+          2. When prompted, allow your browser to install unknown apps.
+          3. Open Tap Tycoon from your home screen. Progress saves on your device.
+
+          Built automatically from the latest code on main."

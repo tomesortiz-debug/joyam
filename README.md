@@ -30,12 +30,20 @@ Play in browser / install as web app: **https://tomesortiz-debug.github.io/joyam
 | `.github/workflows/deploy.yml` | Publishes `www/` to GitHub Pages on every push to main |
 | `.github/workflows/build-android.yml` | Builds the Play Store AAB + installable APKs on every push to main |
 
-## Getting the Android build
+## Install on Android — free, no Play Store needed
+
+**Direct download:** https://github.com/tomesortiz-debug/joyam/releases/latest/download/TapTycoon.apk
+
+Open that link on your Android phone, allow the install when prompted, and the
+game appears on your home screen as a real app. Every push to `main` rebuilds
+it automatically and updates the link.
+
+## Getting the Play Store build (when you're ready)
 
 Every push to `main` runs the **Build Android app** workflow. Open the run in
 the Actions tab and download:
 
-- `tap-tycoon-debug-apk` — install directly on any Android phone to test
+- `tap-tycoon-debug-apk` — the same APK as the release link above
 - `tap-tycoon-playstore-aab` — upload this file to Google Play Console
 
 ### One-time signing setup (needed for the Play Store AAB)
