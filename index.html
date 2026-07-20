@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tap Tycoon">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Tap Tycoon 💰</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+  html, body { height:100%; overflow:hidden; touch-action:manipulation; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #1b2a5e 0%, #0b1020 60%, #070a16 100%);
+    color:#eef1ff;
+    display:flex; flex-direction:column;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ---------- Top stats ---------- */
+  #topbar { text-align:center; padding:10px 12px 6px; flex:0 0 auto; }
+  #money {
+    font-size: clamp(34px, 10vw, 48px); font-weight:800; letter-spacing:-1px;
+    background: linear-gradient(180deg, #b9f6ca, #4ade80 55%, #16a34a);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    text-shadow: 0 0 24px rgba(74,222,128,.25);
+    transition: transform .08s;
+  }
+  #money.pop { transform: scale(1.04); }
+  .chips { display:flex; justify-content:center; gap:8px; margin-top:6px; flex-wrap:wrap; }
+  .chip {
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+    border-radius:999px; padding:4px 12px; font-size:12.5px; color:#c7d0f0; font-weight:600;
+  }
+  .chip b { color:#ffe082; }
+
+  /* ---------- Boost pills ---------- */
+  #boosts { display:flex; justify-content:center; gap:6px; min-height:26px; margin-top:4px; flex-wrap:wrap; }
+  .boostpill {
+    background:linear-gradient(90deg,#7c3aed,#db2777); border-radius:999px;
+    padding:3px 10px; font-size:12px; font-weight:700; box-shadow:0 2px 10px rgba(219,39,119,.4);
+    animation: pulse 1s infinite alternate;
+  }
+  @keyframes pulse { from{opacity:.85} to{opacity:1} }
+
+  /* ---------- Tap zone / avatar ---------- */
+  #tapzone { flex:1 1 auto; position:relative; display:flex; align-items:center; justify-content:center; min-height:150px; overflow:hidden; }
+  #avatar {
+    position:relative; width:min(46vw,230px); height:min(46vw,230px);
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%; cursor:pointer;
+    transition: transform .06s;
+  }
+  #avatar.squish { transform: scale(.93); }
+  #aura {
+    position:absolute; inset:-10px; border-radius:50%;
+    background: radial-gradient(circle, rgba(255,255,255,.10) 0%, rgba(255,255,255,.03) 55%, transparent 70%);
+    border: 3px solid rgba(255,255,255,.12);
+  }
+  #aura.blue  { background: radial-gradient(circle, rgba(59,130,246,.35), transparent 70%); border-color:#3b82f6; box-shadow:0 0 40px rgba(59,130,246,.5); }
+  #aura.purple{ background: radial-gradient(circle, rgba(168,85,247,.35), transparent 70%); border-color:#a855f7; box-shadow:0 0 40px rgba(168,85,247,.5); }
+  #aura.gold  { background: radial-gradient(circle, rgba(250,204,21,.35), transparent 70%); border-color:#facc15; box-shadow:0 0 50px rgba(250,204,21,.6); }
+  #face   { font-size:min(30vw,150px); line-height:1; filter: drop-shadow(0 8px 16px rgba(0,0,0,.4)); }
+  .wear { position:absolute; left:50%; transform:translateX(-50%); pointer-events:none; line-height:1; }
+  #hat     { top:-6%; font-size:min(15vw,74px); }
+  #glasses { top:31%; font-size:min(13vw,64px); }
+  #chain   { bottom:-4%; font-size:min(11vw,54px); }
+  #taphint { position:absolute; bottom:6px; width:100%; text-align:center; font-size:12px; color:#8892b8; letter-spacing:.5px; }
+
+  .float {
+    position:absolute; font-weight:800; font-size:22px; color:#7CFC9A; pointer-events:none;
+    text-shadow:0 2px 6px rgba(0,0,0,.6); animation: rise .9s ease-out forwards; z-index:5;
+  }
+  .float.coin { font-size:26px; }
+  @keyframes rise { 0%{opacity:1; transform:translateY(0) scale(1)} 100%{opacity:0; transform:translateY(-90px) scale(1.25)} }
+
+  /* ---------- Shop ---------- */
+  #shop {
+    flex: 0 0 46%; display:flex; flex-direction:column;
+    background:rgba(10,14,30,.92); border-top:1px solid rgba(255,255,255,.1);
+    border-radius:22px 22px 0 0; box-shadow:0 -10px 30px rgba(0,0,0,.45);
+  }
+  #tabs { display:flex; flex:0 0 auto; padding:8px 8px 4px; gap:4px; }
+  .tab {
+    flex:1; text-align:center; padding:8px 2px; border-radius:12px; font-size:11px; font-weight:700;
+    color:#8892b8; background:transparent; border:none; cursor:pointer;
+  }
+  .tab .ico { display:block; font-size:20px; margin-bottom:2px; }
+  .tab.active { background:rgba(255,255,255,.09); color:#fff; }
+  #panel { flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 12px 20px; }
+
+  .row {
+    display:flex; align-items:center; gap:10px; padding:10px;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+    border-radius:14px; margin-bottom:8px;
+  }
+  .row .emoji { font-size:30px; width:40px; text-align:center; flex:0 0 auto; }
+  .row .info { flex:1 1 auto; min-width:0; }
+  .row .name { font-weight:700; font-size:14px; }
+  .row .name .owned { color:#ffd54f; font-size:12px; margin-left:6px; }
+  .row .desc { font-size:11.5px; color:#9aa5c9; margin-top:2px; }
+  .buy {
+    flex:0 0 auto; min-width:86px; padding:9px 10px; border:none; border-radius:12px;
+    font-weight:800; font-size:13px; color:#06230f; cursor:pointer;
+    background:linear-gradient(180deg,#6ee7a0,#22c55e); box-shadow:0 3px 0 #15803d;
+  }
+  .buy:active { transform:translateY(2px); box-shadow:0 1px 0 #15803d; }
+  .buy:disabled { background:#2a3352; color:#697199; box-shadow:none; }
+  .buy.equipped { background:linear-gradient(180deg,#93c5fd,#3b82f6); box-shadow:0 3px 0 #1d4ed8; color:#eff6ff; }
+  .sectionTitle { font-size:12px; font-weight:800; color:#8892b8; letter-spacing:1px; margin:10px 2px 6px; text-transform:uppercase; }
+
+  /* ---------- Stats / settings ---------- */
+  .statrow { display:flex; justify-content:space-between; padding:10px 4px; border-bottom:1px solid rgba(255,255,255,.07); font-size:14px; }
+  .statrow b { color:#ffe082; }
+  .settingsBtn {
+    width:100%; padding:12px; margin-top:10px; border-radius:12px; border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.06); color:#eef1ff; font-weight:700; font-size:14px; cursor:pointer;
+  }
+  .settingsBtn.danger { border-color:#7f1d1d; background:rgba(220,38,38,.15); color:#fca5a5; }
+
+  /* ---------- Modal ---------- */
+  #modal {
+    position:fixed; inset:0; background:rgba(0,0,0,.7); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:24px;
+  }
+  #modal.show { display:flex; }
+  #modalCard {
+    background:linear-gradient(180deg,#1c2547,#111731); border:1px solid rgba(255,255,255,.15);
+    border-radius:20px; padding:26px 22px; text-align:center; max-width:320px; width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  #modalCard .big { font-size:44px; }
+  #modalCard h2 { margin:8px 0 4px; font-size:20px; }
+  #modalCard p { color:#aeb8dd; font-size:14px; margin-bottom:16px; }
+  #modalCard .gain { color:#4ade80; font-weight:800; font-size:22px; }
+  #modalBtn {
+    width:100%; padding:13px; border:none; border-radius:14px; font-weight:800; font-size:15px;
+    background:linear-gradient(180deg,#6ee7a0,#22c55e); box-shadow:0 3px 0 #15803d; color:#06230f; cursor:pointer;
+  }
+  #toast {
+    position:fixed; top:14%; left:50%; transform:translateX(-50%);
+    background:rgba(20,26,52,.95); border:1px solid rgba(255,255,255,.2); border-radius:999px;
+    padding:8px 18px; font-size:13px; font-weight:700; opacity:0; transition:opacity .25s; z-index:60; pointer-events:none;
+    white-space:nowrap;
+  }
+  #toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="money">$0</div>
+  <div class="chips">
+    <span class="chip">👆 <b id="tapVal">$1</b>/tap</span>
+    <span class="chip">📈 <b id="secVal">$0</b>/sec</span>
+  </div>
+  <div id="boosts"></div>
+</div>
+
+<div id="tapzone">
+  <div id="avatar">
+    <div id="aura"></div>
+    <div id="face">🙂</div>
+    <div id="hat" class="wear"></div>
+    <div id="glasses" class="wear"></div>
+    <div id="chain" class="wear"></div>
+  </div>
+  <div id="taphint">TAP TO MAKE MONEY</div>
+</div>
+
+<div id="shop">
+  <div id="tabs">
+    <button class="tab active" data-tab="business"><span class="ico">🏢</span>Business</button>
+    <button class="tab" data-tab="upgrades"><span class="ico">👆</span>Upgrades</button>
+    <button class="tab" data-tab="boosts"><span class="ico">⚡</span>Boosts</button>
+    <button class="tab" data-tab="style"><span class="ico">👕</span>Style</button>
+    <button class="tab" data-tab="stats"><span class="ico">📊</span>Stats</button>
+  </div>
+  <div id="panel"></div>
+</div>
+
+<div id="modal">
+  <div id="modalCard">
+    <div class="big" id="modalEmoji">💰</div>
+    <h2 id="modalTitle">Welcome back!</h2>
+    <p id="modalText">Your businesses kept working.</p>
+    <div class="gain" id="modalGain"></div>
+    <button id="modalBtn">Collect</button>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+/* ================= Game data ================= */
+
+const BUSINESSES = [
+  { id:"lemonade", emoji:"🍋", name:"Lemonade Stand", cost:50,        inc:1 },
+  { id:"foodcart", emoji:"🌭", name:"Food Cart",      cost:500,       inc:8 },
+  { id:"coffee",   emoji:"☕", name:"Coffee Shop",    cost:5e3,       inc:60 },
+  { id:"arcade",   emoji:"🕹️", name:"Retro Arcade",   cost:5e4,       inc:420 },
+  { id:"startup",  emoji:"💻", name:"Tech Startup",   cost:5e5,       inc:3200 },
+  { id:"estate",   emoji:"🏙️", name:"Real Estate",    cost:5e6,       inc:24000 },
+  { id:"bank",     emoji:"🏦", name:"Private Bank",   cost:5e7,       inc:180000 },
+  { id:"space",    emoji:"🚀", name:"Space Company",  cost:5e8,       inc:1350000 },
+];
+const BIZ_GROWTH = 1.15;
+
+const UPGRADES = [
+  { id:"fingers", emoji:"🖐️", name:"Trained Fingers",     cost:25,   add:1,     growth:1.6 },
+  { id:"gloves",  emoji:"🧤", name:"Golden Gloves",       cost:500,  add:10,    growth:1.6 },
+  { id:"rings",   emoji:"💍", name:"Diamond Knuckles",    cost:8e3,  add:120,   growth:1.6 },
+  { id:"midas",   emoji:"✨", name:"Midas Touch",         cost:15e4, add:1500,  growth:1.6 },
+  { id:"mindset", emoji:"🧠", name:"Billionaire Mindset", cost:3e6,  add:25000, growth:1.6 },
+];
+
+const POWERUPS = [
+  { id:"coffee", emoji:"☕", name:"Coffee Rush",   desc:"2× tap money for 60s",    type:"boost", tapMult:2, allMult:1, dur:60 },
+  { id:"frenzy", emoji:"🌟", name:"Golden Frenzy", desc:"3× ALL income for 30s",   type:"boost", tapMult:3, allMult:3, dur:30 },
+  { id:"rain",   emoji:"💸", name:"Money Rain",    desc:"Instant cash drop",       type:"instant" },
+  { id:"warp",   emoji:"⏰", name:"Time Warp",     desc:"Collect 1 hour of passive income now", type:"instant" },
+];
+
+const CLOTHING = [
+  // slot: hat | glasses | chain | aura
+  { id:"cap",     slot:"hat",     emoji:"🧢", name:"Snapback Cap",   cost:1e3,  bonus:{tap:0.05},              desc:"+5% tap money" },
+  { id:"tophat",  slot:"hat",     emoji:"🎩", name:"Top Hat",        cost:1e5,  bonus:{tap:0.15},              desc:"+15% tap money" },
+  { id:"crown",   slot:"hat",     emoji:"👑", name:"Royal Crown",    cost:25e6, bonus:{tap:0.5},               desc:"+50% tap money" },
+  { id:"nerd",    slot:"glasses", emoji:"👓", name:"Smart Glasses",  cost:5e3,  bonus:{passive:0.05},          desc:"+5% passive income" },
+  { id:"shades",  slot:"glasses", emoji:"🕶️", name:"Boss Shades",    cost:25e4, bonus:{passive:0.15},          desc:"+15% passive income" },
+  { id:"visor",   slot:"glasses", emoji:"🥽", name:"Cyber Visor",    cost:5e6,  bonus:{passive:0.30},          desc:"+30% passive income" },
+  { id:"beads",   slot:"chain",   emoji:"📿", name:"Lucky Beads",    cost:5e4,  bonus:{all:0.05},              desc:"+5% ALL income" },
+  { id:"watch",   slot:"chain",   emoji:"⌚", name:"Luxury Watch",   cost:2e6,  bonus:{all:0.10},              desc:"+10% ALL income" },
+  { id:"gem",     slot:"chain",   emoji:"💎", name:"Diamond Chain",  cost:1e8,  bonus:{all:0.25},              desc:"+25% ALL income" },
+  { id:"auraB",   slot:"aura",    emoji:"🔵", name:"Blue Aura",      cost:25e3, bonus:{all:0.02}, css:"blue",   desc:"Glow up! +2% ALL" },
+  { id:"auraP",   slot:"aura",    emoji:"🟣", name:"Purple Aura",    cost:1e6,  bonus:{all:0.05}, css:"purple", desc:"Rare glow. +5% ALL" },
+  { id:"auraG",   slot:"aura",    emoji:"🟡", name:"Gold Aura",      cost:5e7,  bonus:{all:0.12}, css:"gold",   desc:"Legendary glow. +12% ALL" },
+];
+
+const SLOT_NAMES = { hat:"Hats", glasses:"Glasses", chain:"Bling", aura:"Auras" };
+const OFFLINE_CAP_SEC = 2 * 3600;
+const SAVE_KEY = "tapTycoonSave_v1";
+
+/* ================= State ================= */
+
+let S = {
+  money: 0,
+  totalEarned: 0,
+  taps: 0,
+  biz: {},        // id -> count
+  ups: {},        // id -> count
+  powerBuys: {},  // id -> times bought (for stats)
+  owned: [],      // clothing ids
+  equipped: { hat:null, glasses:null, chain:null, aura:null },
+  activeBoosts: [], // {id, until}
+  lastSeen: Date.now(),
+  sound: true,
+  haptics: true,
+};
+
+function load() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      S = Object.assign(S, d);
+      S.equipped = Object.assign({ hat:null, glasses:null, chain:null, aura:null }, d.equipped);
+    }
+  } catch (e) { /* corrupted save -> start fresh */ }
+}
+function save() {
+  S.lastSeen = Date.now();
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {}
+}
+
+/* ================= Derived values ================= */
+
+function bizCost(b)  { return Math.ceil(b.cost * Math.pow(BIZ_GROWTH, S.biz[b.id] || 0)); }
+function upCost(u)   { return Math.ceil(u.cost * Math.pow(u.growth, S.ups[u.id] || 0)); }
+
+function clothingBonus(kind) {
+  let mult = 1;
+  for (const slot in S.equipped) {
+    const id = S.equipped[slot];
+    if (!id) continue;
+    const c = CLOTHING.find(c => c.id === id);
+    if (c && c.bonus[kind]) mult += c.bonus[kind];
+  }
+  return mult;
+}
+function boostMult(kind) {
+  const now = Date.now();
+  let mult = 1;
+  for (const ab of S.activeBoosts) {
+    if (ab.until <= now) continue;
+    const p = POWERUPS.find(p => p.id === ab.id);
+    if (!p) continue;
+    if (kind === "tap") mult *= p.tapMult;
+    else mult *= p.allMult;
+  }
+  return mult;
+}
+
+function tapValue() {
+  let v = 1;
+  for (const u of UPGRADES) v += u.add * (S.ups[u.id] || 0);
+  return v * clothingBonus("tap") * clothingBonus("all") * boostMult("tap");
+}
+function perSec() {
+  let v = 0;
+  for (const b of BUSINESSES) v += b.inc * (S.biz[b.id] || 0);
+  return v * clothingBonus("passive") * clothingBonus("all") * boostMult("all");
+}
+
+function powerCost(p) {
+  const ps = perSec(), tv = tapValue();
+  switch (p.id) {
+    case "coffee": return Math.max(500,  Math.round(ps * 45 + tv * 30));
+    case "frenzy": return Math.max(2500, Math.round(ps * 120 + tv * 60));
+    case "rain":   return Math.max(1000, Math.round((tv * 100 + ps * 300) * 0.6));
+    case "warp":   return Math.max(5000, Math.round(ps * 1800));
+    default: return 1e9;
+  }
+}
+
+/* ================= Money helpers ================= */
+
+const SUFFIXES = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp"];
+function fmt(n) {
+  if (n < 0) return "-" + fmt(-n);
+  if (n < 1000) return "$" + Math.floor(n);
+  let tier = Math.floor(Math.log10(n) / 3);
+  tier = Math.min(tier, SUFFIXES.length - 1);
+  const scaled = n / Math.pow(10, tier * 3);
+  return "$" + (scaled >= 100 ? Math.floor(scaled) : scaled.toFixed(scaled >= 10 ? 1 : 2)) + SUFFIXES[tier];
+}
+
+function earn(amount) {
+  S.money += amount;
+  S.totalEarned += amount;
+}
+function spend(amount) {
+  if (S.money < amount) return false;
+  S.money -= amount;
+  return true;
+}
+
+/* ================= Audio & haptics ================= */
+
+let audioCtx = null;
+function blip(freq, dur, vol) {
+  if (!S.sound) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = "triangle"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+function buzz(ms) {
+  if (S.haptics && navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
+}
+
+/* ================= DOM refs ================= */
+
+const $ = id => document.getElementById(id);
+const moneyEl = $("money"), tapValEl = $("tapVal"), secValEl = $("secVal");
+const boostsEl = $("boosts"), panelEl = $("panel"), tapzone = $("tapzone");
+const avatarEl = $("avatar"), auraEl = $("aura");
+let currentTab = "business";
+let liveRows = []; // [{priceEl, btn, ownedEl, getCost, canAfford()}]
+
+/* ================= Tapping ================= */
+
+let squishTimer = null, popTimer = null;
+tapzone.addEventListener("pointerdown", (e) => {
+  const v = tapValue();
+  earn(v);
+  S.taps++;
+  buzz(10);
+  blip(700 + Math.random() * 300, 0.07, 0.06);
+
+  // float text
+  const f = document.createElement("div");
+  f.className = "float" + (Math.random() < 0.18 ? " coin" : "");
+  f.textContent = Math.random() < 0.18 ? "🪙" : "+" + fmt(v);
+  const rect = tapzone.getBoundingClientRect();
+  f.style.left = (e.clientX - rect.left - 20 + (Math.random() * 24 - 12)) + "px";
+  f.style.top  = (e.clientY - rect.top - 30) + "px";
+  tapzone.appendChild(f);
+  setTimeout(() => f.remove(), 900);
+  if (tapzone.querySelectorAll(".float").length > 25) tapzone.querySelector(".float").remove();
+
+  avatarEl.classList.add("squish");
+  clearTimeout(squishTimer);
+  squishTimer = setTimeout(() => avatarEl.classList.remove("squish"), 70);
+
+  moneyEl.classList.add("pop");
+  clearTimeout(popTimer);
+  popTimer = setTimeout(() => moneyEl.classList.remove("pop"), 90);
+
+  updateHUD();
+});
+
+/* ================= Shop rendering ================= */
+
+function makeRow(emoji, name, desc, ownedText, btnText, onBuy) {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML =
+    '<div class="emoji">' + emoji + '</div>' +
+    '<div class="info"><div class="name">' + name +
+    (ownedText ? ' <span class="owned">' + ownedText + '</span>' : '') +
+    '</div><div class="desc">' + desc + '</div></div>';
+  const btn = document.createElement("button");
+  btn.className = "buy";
+  btn.textContent = btnText;
+  btn.addEventListener("click", onBuy);
+  row.appendChild(btn);
+  return { row, btn, ownedEl: row.querySelector(".owned") };
+}
+
+function renderTab() {
+  panelEl.innerHTML = "";
+  liveRows = [];
+  if (currentTab === "business") renderBusiness();
+  else if (currentTab === "upgrades") renderUpgrades();
+  else if (currentTab === "boosts") renderBoosts();
+  else if (currentTab === "style") renderStyle();
+  else renderStats();
+  refreshRows();
+}
+
+function renderBusiness() {
+  for (const b of BUSINESSES) {
+    const count = S.biz[b.id] || 0;
+    const { row, btn } = makeRow(
+      b.emoji, b.name, "+" + fmt(b.inc).slice(1) + "/sec each",
+      count ? "×" + count : "", fmt(bizCost(b)),
+      () => {
+        const cost = bizCost(b);
+        if (!spend(cost)) return;
+        S.biz[b.id] = (S.biz[b.id] || 0) + 1;
+        buzz(20); blip(500, 0.12, 0.08);
+        toast(b.emoji + " " + b.name + " ×" + S.biz[b.id]);
+        save(); renderTab(); updateHUD();
+      }
+    );
+    liveRows.push({ btn, getCost: () => bizCost(b) });
+    panelEl.appendChild(row);
+  }
+}
+
+function renderUpgrades() {
+  for (const u of UPGRADES) {
+    const count = S.ups[u.id] || 0;
+    const { row, btn } = makeRow(
+      u.emoji, u.name, "+" + fmt(u.add).slice(1) + " per tap",
+      count ? "Lv." + count : "", fmt(upCost(u)),
+      () => {
+        const cost = upCost(u);
+        if (!spend(cost)) return;
+        S.ups[u.id] = (S.ups[u.id] || 0) + 1;
+        buzz(20); blip(600, 0.12, 0.08);
+        toast(u.emoji + " " + u.name + " Lv." + S.ups[u.id]);
+        save(); renderTab(); updateHUD();
+      }
+    );
+    liveRows.push({ btn, getCost: () => upCost(u) });
+    panelEl.appendChild(row);
+  }
+}
+
+function renderBoosts() {
+  for (const p of POWERUPS) {
+    const { row, btn } = makeRow(
+      p.emoji, p.name, p.desc, "", fmt(powerCost(p)),
+      () => {
+        const cost = powerCost(p);
+        if (!spend(cost)) return;
+        S.powerBuys[p.id] = (S.powerBuys[p.id] || 0) + 1;
+        if (p.type === "boost") {
+          const now = Date.now();
+          const existing = S.activeBoosts.find(ab => ab.id === p.id);
+          if (existing) existing.until = Math.max(existing.until, now) + p.dur * 1000;
+          else S.activeBoosts.push({ id: p.id, until: now + p.dur * 1000 });
+          toast(p.emoji + " " + p.name + " active!");
+        } else if (p.id === "rain") {
+          const gain = tapValue() * 100 + perSec() * 300;
+          earn(gain);
+          toast("💸 +" + fmt(gain) + "!");
+          rainCoins();
+        } else if (p.id === "warp") {
+          const gain = perSec() * 3600;
+          earn(gain);
+          toast("⏰ +" + fmt(gain) + "!");
+        }
+        buzz([30, 40, 30]); blip(880, 0.2, 0.1);
+        save(); renderTab(); updateHUD();
+      }
+    );
+    // costs shift with your income, so refresh the label live
+    liveRows.push({ btn, getCost: () => powerCost(p), liveLabel: true });
+    panelEl.appendChild(row);
+  }
+  const note = document.createElement("div");
+  note.className = "desc";
+  note.style.cssText = "color:#8892b8;font-size:11.5px;text-align:center;padding:6px;";
+  note.textContent = "Boost prices scale with your income — they always stay useful.";
+  panelEl.appendChild(note);
+}
+
+function renderStyle() {
+  for (const slot of ["hat", "glasses", "chain", "aura"]) {
+    const title = document.createElement("div");
+    title.className = "sectionTitle";
+    title.textContent = SLOT_NAMES[slot];
+    panelEl.appendChild(title);
+
+    for (const c of CLOTHING.filter(c => c.slot === slot)) {
+      const isOwned = S.owned.includes(c.id);
+      const isEquipped = S.equipped[slot] === c.id;
+      const btnText = !isOwned ? fmt(c.cost) : (isEquipped ? "Wearing" : "Wear");
+      const { row, btn } = makeRow(c.emoji, c.name, c.desc, "", btnText, () => {
+        if (!S.owned.includes(c.id)) {
+          if (!spend(c.cost)) return;
+          S.owned.push(c.id);
+          S.equipped[slot] = c.id;
+          buzz(25); blip(760, 0.15, 0.1);
+          toast(c.emoji + " " + c.name + " unlocked & equipped!");
+        } else {
+          S.equipped[slot] = (S.equipped[slot] === c.id) ? null : c.id;
+          buzz(12);
+        }
+        save(); renderTab(); updateAvatar(); updateHUD();
+      });
+      if (isOwned) {
+        btn.disabled = false;
+        if (isEquipped) btn.classList.add("equipped");
+      } else {
+        liveRows.push({ btn, getCost: () => c.cost });
+      }
+      panelEl.appendChild(row);
+    }
+  }
+}
+
+function renderStats() {
+  const stats = [
+    ["💰 Current cash", fmt(S.money)],
+    ["🏆 Total earned", fmt(S.totalEarned)],
+    ["👆 Total taps", S.taps.toLocaleString()],
+    ["🏢 Businesses owned", Object.values(S.biz).reduce((a, b) => a + b, 0)],
+    ["👕 Style items owned", S.owned.length + " / " + CLOTHING.length],
+    ["⚡ Boosts used", Object.values(S.powerBuys).reduce((a, b) => a + b, 0)],
+  ];
+  for (const [k, v] of stats) {
+    const d = document.createElement("div");
+    d.className = "statrow";
+    d.innerHTML = "<span>" + k + "</span><b>" + v + "</b>";
+    panelEl.appendChild(d);
+  }
+  const soundBtn = document.createElement("button");
+  soundBtn.className = "settingsBtn";
+  soundBtn.textContent = "🔊 Sound: " + (S.sound ? "ON" : "OFF");
+  soundBtn.onclick = () => { S.sound = !S.sound; save(); renderTab(); };
+  panelEl.appendChild(soundBtn);
+
+  const hapBtn = document.createElement("button");
+  hapBtn.className = "settingsBtn";
+  hapBtn.textContent = "📳 Vibration: " + (S.haptics ? "ON" : "OFF");
+  hapBtn.onclick = () => { S.haptics = !S.haptics; save(); renderTab(); };
+  panelEl.appendChild(hapBtn);
+
+  const resetBtn = document.createElement("button");
+  resetBtn.className = "settingsBtn danger";
+  resetBtn.textContent = "🗑️ Reset all progress";
+  resetBtn.onclick = () => {
+    if (confirm("Delete ALL progress and start over?")) {
+      localStorage.removeItem(SAVE_KEY);
+      location.reload();
+    }
+  };
+  panelEl.appendChild(resetBtn);
+}
+
+function refreshRows() {
+  for (const r of liveRows) {
+    const cost = r.getCost();
+    r.btn.disabled = S.money < cost;
+    if (r.liveLabel) r.btn.textContent = fmt(cost);
+  }
+}
+
+/* ================= HUD & avatar ================= */
+
+function updateHUD() {
+  moneyEl.textContent = fmt(S.money);
+  tapValEl.textContent = fmt(tapValue());
+  secValEl.textContent = fmt(perSec());
+}
+
+function updateAvatar() {
+  const get = slot => CLOTHING.find(c => c.id === S.equipped[slot]);
+  const hat = get("hat"), gl = get("glasses"), ch = get("chain"), aura = get("aura");
+  $("hat").textContent = hat ? hat.emoji : "";
+  $("glasses").textContent = gl ? gl.emoji : "";
+  $("chain").textContent = ch ? ch.emoji : "";
+  auraEl.className = aura ? aura.css : "";
+  // richer face as you get richer
+  const t = S.totalEarned;
+  $("face").textContent = t >= 1e9 ? "🤑" : t >= 1e6 ? "😎" : t >= 1e4 ? "😄" : "🙂";
+}
+
+function updateBoostPills() {
+  const now = Date.now();
+  S.activeBoosts = S.activeBoosts.filter(ab => ab.until > now);
+  boostsEl.innerHTML = "";
+  for (const ab of S.activeBoosts) {
+    const p = POWERUPS.find(p => p.id === ab.id);
+    if (!p) continue;
+    const left = Math.ceil((ab.until - now) / 1000);
+    const pill = document.createElement("span");
+    pill.className = "boostpill";
+    pill.textContent = p.emoji + " " + left + "s";
+    boostsEl.appendChild(pill);
+  }
+}
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => t.classList.remove("show"), 1600);
+}
+
+function rainCoins() {
+  for (let i = 0; i < 14; i++) {
+    setTimeout(() => {
+      const f = document.createElement("div");
+      f.className = "float coin";
+      f.textContent = ["🪙", "💵", "💰"][Math.floor(Math.random() * 3)];
+      f.style.left = (Math.random() * 90 + 5) + "%";
+      f.style.top = (Math.random() * 60 + 10) + "%";
+      tapzone.appendChild(f);
+      setTimeout(() => f.remove(), 900);
+    }, i * 60);
+  }
+}
+
+/* ================= Tabs ================= */
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    currentTab = tab.dataset.tab;
+    renderTab();
+    buzz(8);
+  });
+});
+
+/* ================= Offline earnings ================= */
+
+function offlineEarnings() {
+  const elapsed = Math.min((Date.now() - S.lastSeen) / 1000, OFFLINE_CAP_SEC);
+  if (elapsed < 60) return;
+  const gain = perSec() * elapsed;
+  if (gain < 1) return;
+  earn(gain);
+  const mins = Math.round(elapsed / 60);
+  $("modalEmoji").textContent = "💰";
+  $("modalTitle").textContent = "Welcome back!";
+  $("modalText").textContent = "Your businesses worked for " + (mins >= 60 ? Math.floor(mins / 60) + "h " + (mins % 60) + "m" : mins + " min") + " while you were away.";
+  $("modalGain").textContent = "+" + fmt(gain);
+  $("modal").classList.add("show");
+}
+$("modalBtn").addEventListener("click", () => {
+  $("modal").classList.remove("show");
+  buzz(20); blip(880, 0.2, 0.1);
+  save();
+});
+
+/* ================= Game loop ================= */
+
+let lastTick = Date.now();
+setInterval(() => {
+  const now = Date.now();
+  const dt = Math.min((now - lastTick) / 1000, 5);
+  lastTick = now;
+  const ps = perSec();
+  if (ps > 0) earn(ps * dt);
+  updateHUD();
+  updateBoostPills();
+  refreshRows();
+}, 200);
+
+setInterval(save, 3000);
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+window.addEventListener("pagehide", save);
+
+/* prevent double-tap zoom & context menu on long-press */
+document.addEventListener("dblclick", e => e.preventDefault(), { passive:false });
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* ================= Boot ================= */
+
+load();
+offlineEarnings();
+updateAvatar();
+updateHUD();
+renderTab();
+
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
