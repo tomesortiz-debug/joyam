@@ -8,9 +8,14 @@ and style items to become a billionaire.
 
 - **👆 Tap to earn** — tap the character, watch the cash fly (with haptics + sound)
 - **🏢 8 businesses** — from Lemonade Stand to Space Company, each earns money per second automatically
+- **🎯 Milestones** — every 10 of a business **doubles** its income, with progress bars
+- **🛒 Buy ×1 / ×10 / MAX** — bulk-buy businesses and upgrades with one tap
 - **⬆️ Tap upgrades** — 5 upgrade lines that multiply how much each tap is worth
 - **⚡ Powerups** — Coffee Rush (2× tap), Golden Frenzy (3× everything), Money Rain and Time Warp (instant cash). Prices scale with your income so they always stay useful
+- **🎁 Daily Gift** — a free cash drop + free Golden Frenzy every day
 - **👕 Style shop** — hats, glasses, bling and auras. Your character visibly wears what you buy, and every item gives a permanent income bonus
+- **🏅 14 achievements** — each unlock gives a permanent ALL-income bonus, with progress bars
+- **🔄 Prestige** — reset your run for Prestige Points: +10% ALL income each, forever (keep style, achievements and points)
 - **😎 Evolving avatar** — your character's face gets happier (and greedier) as you get richer
 - **💤 Offline earnings** — your businesses keep working while the app is closed (up to 2 hours), collected in a "Welcome back" screen
 - **💾 Auto-save** — progress saves automatically to your device; works fully offline once installed

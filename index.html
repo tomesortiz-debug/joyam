@@ -40,6 +40,7 @@
     border-radius:999px; padding:4px 12px; font-size:12.5px; color:#c7d0f0; font-weight:600;
   }
   .chip b { color:#ffe082; }
+  .chip.prestige b { color:#c084fc; }
 
   /* ---------- Boost pills ---------- */
   #boosts { display:flex; justify-content:center; gap:6px; min-height:26px; margin-top:4px; flex-wrap:wrap; }
@@ -51,9 +52,9 @@
   @keyframes pulse { from{opacity:.85} to{opacity:1} }
 
   /* ---------- Tap zone / avatar ---------- */
-  #tapzone { flex:1 1 auto; position:relative; display:flex; align-items:center; justify-content:center; min-height:150px; overflow:hidden; }
+  #tapzone { flex:1 1 auto; position:relative; display:flex; align-items:center; justify-content:center; min-height:140px; overflow:hidden; }
   #avatar {
-    position:relative; width:min(46vw,230px); height:min(46vw,230px);
+    position:relative; width:min(44vw,220px); height:min(44vw,220px);
     display:flex; align-items:center; justify-content:center;
     border-radius:50%; cursor:pointer;
     transition: transform .06s;
@@ -67,11 +68,11 @@
   #aura.blue  { background: radial-gradient(circle, rgba(59,130,246,.35), transparent 70%); border-color:#3b82f6; box-shadow:0 0 40px rgba(59,130,246,.5); }
   #aura.purple{ background: radial-gradient(circle, rgba(168,85,247,.35), transparent 70%); border-color:#a855f7; box-shadow:0 0 40px rgba(168,85,247,.5); }
   #aura.gold  { background: radial-gradient(circle, rgba(250,204,21,.35), transparent 70%); border-color:#facc15; box-shadow:0 0 50px rgba(250,204,21,.6); }
-  #face   { font-size:min(30vw,150px); line-height:1; filter: drop-shadow(0 8px 16px rgba(0,0,0,.4)); }
+  #face   { font-size:min(28vw,142px); line-height:1; filter: drop-shadow(0 8px 16px rgba(0,0,0,.4)); }
   .wear { position:absolute; left:50%; transform:translateX(-50%); pointer-events:none; line-height:1; }
-  #hat     { top:-6%; font-size:min(15vw,74px); }
-  #glasses { top:31%; font-size:min(13vw,64px); }
-  #chain   { bottom:-4%; font-size:min(11vw,54px); }
+  #hat     { top:-6%; font-size:min(14vw,70px); }
+  #glasses { top:31%; font-size:min(12vw,60px); }
+  #chain   { bottom:-4%; font-size:min(10vw,50px); }
   #taphint { position:absolute; bottom:6px; width:100%; text-align:center; font-size:12px; color:#8892b8; letter-spacing:.5px; }
 
   .float {
@@ -83,16 +84,16 @@
 
   /* ---------- Shop ---------- */
   #shop {
-    flex: 0 0 46%; display:flex; flex-direction:column;
+    flex: 0 0 47%; display:flex; flex-direction:column;
     background:rgba(10,14,30,.92); border-top:1px solid rgba(255,255,255,.1);
     border-radius:22px 22px 0 0; box-shadow:0 -10px 30px rgba(0,0,0,.45);
   }
-  #tabs { display:flex; flex:0 0 auto; padding:8px 8px 4px; gap:4px; }
+  #tabs { display:flex; flex:0 0 auto; padding:8px 6px 4px; gap:3px; }
   .tab {
-    flex:1; text-align:center; padding:8px 2px; border-radius:12px; font-size:11px; font-weight:700;
+    flex:1; text-align:center; padding:7px 0; border-radius:12px; font-size:10px; font-weight:700;
     color:#8892b8; background:transparent; border:none; cursor:pointer;
   }
-  .tab .ico { display:block; font-size:20px; margin-bottom:2px; }
+  .tab .ico { display:block; font-size:19px; margin-bottom:1px; }
   .tab.active { background:rgba(255,255,255,.09); color:#fff; }
   #panel { flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 12px 20px; }
 
@@ -101,11 +102,15 @@
     background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
     border-radius:14px; margin-bottom:8px;
   }
+  .row.done { border-color:rgba(250,204,21,.5); background:rgba(250,204,21,.08); }
   .row .emoji { font-size:30px; width:40px; text-align:center; flex:0 0 auto; }
   .row .info { flex:1 1 auto; min-width:0; }
   .row .name { font-weight:700; font-size:14px; }
   .row .name .owned { color:#ffd54f; font-size:12px; margin-left:6px; }
   .row .desc { font-size:11.5px; color:#9aa5c9; margin-top:2px; }
+  .bar { height:5px; border-radius:99px; background:rgba(255,255,255,.1); margin-top:6px; overflow:hidden; }
+  .bar i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#4ade80,#22c55e); transition:width .3s; }
+  .bar.gold i { background:linear-gradient(90deg,#fde68a,#f59e0b); }
   .buy {
     flex:0 0 auto; min-width:86px; padding:9px 10px; border:none; border-radius:12px;
     font-weight:800; font-size:13px; color:#06230f; cursor:pointer;
@@ -114,7 +119,30 @@
   .buy:active { transform:translateY(2px); box-shadow:0 1px 0 #15803d; }
   .buy:disabled { background:#2a3352; color:#697199; box-shadow:none; }
   .buy.equipped { background:linear-gradient(180deg,#93c5fd,#3b82f6); box-shadow:0 3px 0 #1d4ed8; color:#eff6ff; }
+  .buy.free { background:linear-gradient(180deg,#fde68a,#f59e0b); box-shadow:0 3px 0 #b45309; color:#451a03; }
   .sectionTitle { font-size:12px; font-weight:800; color:#8892b8; letter-spacing:1px; margin:10px 2px 6px; text-transform:uppercase; }
+
+  /* ---------- Buy amount selector ---------- */
+  #amtRow { display:flex; align-items:center; gap:6px; margin:4px 2px 10px; }
+  #amtRow span { font-size:11px; color:#8892b8; font-weight:700; }
+  .amtBtn {
+    padding:6px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.05); color:#aeb8dd; font-weight:800; font-size:12px; cursor:pointer;
+  }
+  .amtBtn.active { background:linear-gradient(180deg,#6ee7a0,#22c55e); color:#06230f; border-color:transparent; }
+
+  /* ---------- Prestige card ---------- */
+  #prestigeCard {
+    background:linear-gradient(135deg, rgba(124,58,237,.25), rgba(219,39,119,.15));
+    border:1px solid rgba(168,85,247,.45); border-radius:16px; padding:14px; margin-bottom:12px;
+  }
+  #prestigeCard h3 { font-size:15px; margin-bottom:4px; }
+  #prestigeCard p { font-size:12px; color:#c4b5fd; margin-bottom:8px; }
+  #prestigeBtn {
+    width:100%; padding:12px; border:none; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;
+    background:linear-gradient(180deg,#c084fc,#9333ea); box-shadow:0 3px 0 #6b21a8; color:#faf5ff;
+  }
+  #prestigeBtn:disabled { background:#2a3352; color:#697199; box-shadow:none; }
 
   /* ---------- Stats / settings ---------- */
   .statrow { display:flex; justify-content:space-between; padding:10px 4px; border-bottom:1px solid rgba(255,255,255,.07); font-size:14px; }
@@ -148,7 +176,7 @@
     position:fixed; top:14%; left:50%; transform:translateX(-50%);
     background:rgba(20,26,52,.95); border:1px solid rgba(255,255,255,.2); border-radius:999px;
     padding:8px 18px; font-size:13px; font-weight:700; opacity:0; transition:opacity .25s; z-index:60; pointer-events:none;
-    white-space:nowrap;
+    white-space:nowrap; max-width:92vw; overflow:hidden; text-overflow:ellipsis;
   }
   #toast.show { opacity:1; }
 </style>
@@ -160,6 +188,7 @@
   <div class="chips">
     <span class="chip">👆 <b id="tapVal">$1</b>/tap</span>
     <span class="chip">📈 <b id="secVal">$0</b>/sec</span>
+    <span class="chip prestige" id="prestigeChip" style="display:none">🔄 <b id="prestigeVal"></b></span>
   </div>
   <div id="boosts"></div>
 </div>
@@ -181,6 +210,7 @@
     <button class="tab" data-tab="upgrades"><span class="ico">👆</span>Upgrades</button>
     <button class="tab" data-tab="boosts"><span class="ico">⚡</span>Boosts</button>
     <button class="tab" data-tab="style"><span class="ico">👕</span>Style</button>
+    <button class="tab" data-tab="awards"><span class="ico">🏅</span>Awards</button>
     <button class="tab" data-tab="stats"><span class="ico">📊</span>Stats</button>
   </div>
   <div id="panel"></div>
@@ -213,6 +243,7 @@ const BUSINESSES = [
   { id:"space",    emoji:"🚀", name:"Space Company",  cost:5e8,       inc:1350000 },
 ];
 const BIZ_GROWTH = 1.15;
+const MILESTONE = 10; // every 10 owned doubles that business's income
 
 const UPGRADES = [
   { id:"fingers", emoji:"🖐️", name:"Trained Fingers",     cost:25,   add:1,     growth:1.6 },
@@ -245,8 +276,27 @@ const CLOTHING = [
   { id:"auraG",   slot:"aura",    emoji:"🟡", name:"Gold Aura",      cost:5e7,  bonus:{all:0.12}, css:"gold",   desc:"Legendary glow. +12% ALL" },
 ];
 
+const ACHIEVEMENTS = [
+  { id:"tap100",   emoji:"👆", name:"Finger Warmup",    reward:0.02, goal:() => [S.taps, 100],            desc:"Tap 100 times" },
+  { id:"tap2500",  emoji:"🖐️", name:"Tap Machine",      reward:0.03, goal:() => [S.taps, 2500],           desc:"Tap 2,500 times" },
+  { id:"tap25k",   emoji:"⚡", name:"Tap God",          reward:0.05, goal:() => [S.taps, 25000],          desc:"Tap 25,000 times" },
+  { id:"earn1k",   emoji:"💵", name:"First Grand",      reward:0.02, goal:() => [S.totalEarned, 1e3],     desc:"Earn $1K lifetime" },
+  { id:"earn1m",   emoji:"💰", name:"Millionaire",      reward:0.03, goal:() => [S.totalEarned, 1e6],     desc:"Earn $1M lifetime" },
+  { id:"earn1b",   emoji:"🤑", name:"Billionaire",      reward:0.05, goal:() => [S.totalEarned, 1e9],     desc:"Earn $1B lifetime" },
+  { id:"biz10",    emoji:"🏪", name:"Entrepreneur",     reward:0.02, goal:() => [bizTotal(), 10],         desc:"Own 10 businesses" },
+  { id:"biz50",    emoji:"🏢", name:"Business Empire",  reward:0.04, goal:() => [bizTotal(), 50],         desc:"Own 50 businesses" },
+  { id:"bizAll",   emoji:"🌐", name:"Mogul",            reward:0.04, goal:() => [BUSINESSES.filter(b => (S.biz[b.id]||0) > 0).length, BUSINESSES.length], desc:"Own every business type" },
+  { id:"style3",   emoji:"🧢", name:"Fresh Look",       reward:0.02, goal:() => [S.owned.length, 3],      desc:"Own 3 style items" },
+  { id:"styleAll", emoji:"👑", name:"Fashion Icon",     reward:0.06, goal:() => [S.owned.length, CLOTHING.length], desc:"Own every style item" },
+  { id:"boost10",  emoji:"⚡", name:"Boost Addict",     reward:0.03, goal:() => [powerTotal(), 10],       desc:"Use 10 boosts" },
+  { id:"reborn1",  emoji:"🔄", name:"Reborn",           reward:0.05, goal:() => [S.prestiges, 1],         desc:"Prestige once" },
+  { id:"reborn5",  emoji:"🌟", name:"Ascended",         reward:0.10, goal:() => [S.prestiges, 5],         desc:"Prestige 5 times" },
+];
+
 const SLOT_NAMES = { hat:"Hats", glasses:"Glasses", chain:"Bling", aura:"Auras" };
 const OFFLINE_CAP_SEC = 2 * 3600;
+const PRESTIGE_REQ = 1e7;   // lifetime-run earnings needed for 1 point
+const PRESTIGE_BONUS = 0.10; // each point = +10% all income forever
 const SAVE_KEY = "tapTycoonSave_v1";
 
 /* ================= State ================= */
@@ -254,13 +304,19 @@ const SAVE_KEY = "tapTycoonSave_v1";
 let S = {
   money: 0,
   totalEarned: 0,
+  runEarned: 0,
   taps: 0,
   biz: {},        // id -> count
   ups: {},        // id -> count
-  powerBuys: {},  // id -> times bought (for stats)
+  powerBuys: {},  // id -> times bought
   owned: [],      // clothing ids
   equipped: { hat:null, glasses:null, chain:null, aura:null },
   activeBoosts: [], // {id, until}
+  ach: [],        // unlocked achievement ids
+  prestiges: 0,
+  prestigePoints: 0,
+  buyAmt: 1,      // 1 | 10 | "max"
+  lastDaily: "",
   lastSeen: Date.now(),
   sound: true,
   haptics: true,
@@ -273,6 +329,7 @@ function load() {
       const d = JSON.parse(raw);
       S = Object.assign(S, d);
       S.equipped = Object.assign({ hat:null, glasses:null, chain:null, aura:null }, d.equipped);
+      if (d.runEarned === undefined) S.runEarned = S.totalEarned; // migrate v1 saves
     }
   } catch (e) { /* corrupted save -> start fresh */ }
 }
@@ -283,8 +340,8 @@ function save() {
 
 /* ================= Derived values ================= */
 
-function bizCost(b)  { return Math.ceil(b.cost * Math.pow(BIZ_GROWTH, S.biz[b.id] || 0)); }
-function upCost(u)   { return Math.ceil(u.cost * Math.pow(u.growth, S.ups[u.id] || 0)); }
+function bizTotal()   { return Object.values(S.biz).reduce((a, b) => a + b, 0); }
+function powerTotal() { return Object.values(S.powerBuys).reduce((a, b) => a + b, 0); }
 
 function clothingBonus(kind) {
   let mult = 1;
@@ -296,6 +353,17 @@ function clothingBonus(kind) {
   }
   return mult;
 }
+function achBonus() {
+  let mult = 1;
+  for (const id of S.ach) {
+    const a = ACHIEVEMENTS.find(a => a.id === id);
+    if (a) mult += a.reward;
+  }
+  return mult;
+}
+function prestigeBonus() { return 1 + S.prestigePoints * PRESTIGE_BONUS; }
+function globalMult() { return achBonus() * prestigeBonus() * clothingBonus("all"); }
+
 function boostMult(kind) {
   const now = Date.now();
   let mult = 1;
@@ -312,12 +380,33 @@ function boostMult(kind) {
 function tapValue() {
   let v = 1;
   for (const u of UPGRADES) v += u.add * (S.ups[u.id] || 0);
-  return v * clothingBonus("tap") * clothingBonus("all") * boostMult("tap");
+  return v * clothingBonus("tap") * globalMult() * boostMult("tap");
 }
+function milestoneMult(count) { return Math.pow(2, Math.floor(count / MILESTONE)); }
 function perSec() {
   let v = 0;
-  for (const b of BUSINESSES) v += b.inc * (S.biz[b.id] || 0);
-  return v * clothingBonus("passive") * clothingBonus("all") * boostMult("all");
+  for (const b of BUSINESSES) {
+    const count = S.biz[b.id] || 0;
+    v += b.inc * count * milestoneMult(count);
+  }
+  return v * clothingBonus("passive") * globalMult() * boostMult("all");
+}
+
+/* Bulk buying: cost of n items in a geometric series, and max affordable n */
+function seriesCost(base, growth, owned, n) {
+  return Math.ceil(base * Math.pow(growth, owned) * (Math.pow(growth, n) - 1) / (growth - 1));
+}
+function maxAffordable(base, growth, owned) {
+  const first = base * Math.pow(growth, owned);
+  if (S.money < first) return 0;
+  // n such that first*(g^n - 1)/(g-1) <= money
+  const n = Math.floor(Math.log(S.money * (growth - 1) / first + 1) / Math.log(growth));
+  return Math.max(1, n);
+}
+function bulkInfo(base, growth, owned) {
+  let n = S.buyAmt === "max" ? maxAffordable(base, growth, owned) : S.buyAmt;
+  if (n < 1) n = 1;
+  return { n, cost: seriesCost(base, growth, owned, n) };
 }
 
 function powerCost(p) {
@@ -329,6 +418,10 @@ function powerCost(p) {
     case "warp":   return Math.max(5000, Math.round(ps * 1800));
     default: return 1e9;
   }
+}
+
+function prestigeGain() {
+  return Math.floor(Math.sqrt(S.runEarned / PRESTIGE_REQ));
 }
 
 /* ================= Money helpers ================= */
@@ -346,6 +439,7 @@ function fmt(n) {
 function earn(amount) {
   S.money += amount;
   S.totalEarned += amount;
+  S.runEarned += amount;
 }
 function spend(amount) {
   if (S.money < amount) return false;
@@ -380,7 +474,7 @@ const moneyEl = $("money"), tapValEl = $("tapVal"), secValEl = $("secVal");
 const boostsEl = $("boosts"), panelEl = $("panel"), tapzone = $("tapzone");
 const avatarEl = $("avatar"), auraEl = $("aura");
 let currentTab = "business";
-let liveRows = []; // [{priceEl, btn, ownedEl, getCost, canAfford()}]
+let liveRows = []; // [{btn?, getCost?, getLabel?, barEl?, getPct?}]
 
 /* ================= Tapping ================= */
 
@@ -392,7 +486,6 @@ tapzone.addEventListener("pointerdown", (e) => {
   buzz(10);
   blip(700 + Math.random() * 300, 0.07, 0.06);
 
-  // float text
   const f = document.createElement("div");
   f.className = "float" + (Math.random() < 0.18 ? " coin" : "");
   f.textContent = Math.random() < 0.18 ? "🪙" : "+" + fmt(v);
@@ -429,7 +522,21 @@ function makeRow(emoji, name, desc, ownedText, btnText, onBuy) {
   btn.textContent = btnText;
   btn.addEventListener("click", onBuy);
   row.appendChild(btn);
-  return { row, btn, ownedEl: row.querySelector(".owned") };
+  return { row, btn, info: row.querySelector(".info") };
+}
+
+function addAmtSelector() {
+  const bar = document.createElement("div");
+  bar.id = "amtRow";
+  bar.innerHTML = '<span>BUY</span>';
+  for (const amt of [1, 10, "max"]) {
+    const b = document.createElement("button");
+    b.className = "amtBtn" + (S.buyAmt === amt ? " active" : "");
+    b.textContent = amt === "max" ? "MAX" : "×" + amt;
+    b.addEventListener("click", () => { S.buyAmt = amt; buzz(8); save(); renderTab(); });
+    bar.appendChild(b);
+  }
+  panelEl.appendChild(bar);
 }
 
 function renderTab() {
@@ -439,51 +546,101 @@ function renderTab() {
   else if (currentTab === "upgrades") renderUpgrades();
   else if (currentTab === "boosts") renderBoosts();
   else if (currentTab === "style") renderStyle();
+  else if (currentTab === "awards") renderAwards();
   else renderStats();
   refreshRows();
 }
 
 function renderBusiness() {
+  addAmtSelector();
   for (const b of BUSINESSES) {
     const count = S.biz[b.id] || 0;
-    const { row, btn } = makeRow(
-      b.emoji, b.name, "+" + fmt(b.inc).slice(1) + "/sec each",
-      count ? "×" + count : "", fmt(bizCost(b)),
+    const mult = milestoneMult(count);
+    const toNext = MILESTONE - (count % MILESTONE);
+    const { row, btn, info } = makeRow(
+      b.emoji, b.name,
+      "+" + fmt(b.inc * mult).slice(1) + "/sec each" + (mult > 1 ? " (×" + mult + " milestone)" : ""),
+      count ? "×" + count : "", "",
       () => {
-        const cost = bizCost(b);
+        const { n, cost } = bulkInfo(b.cost, BIZ_GROWTH, S.biz[b.id] || 0);
         if (!spend(cost)) return;
-        S.biz[b.id] = (S.biz[b.id] || 0) + 1;
+        S.biz[b.id] = (S.biz[b.id] || 0) + n;
         buzz(20); blip(500, 0.12, 0.08);
-        toast(b.emoji + " " + b.name + " ×" + S.biz[b.id]);
+        const newMult = milestoneMult(S.biz[b.id]);
+        toast(newMult > mult
+          ? "🎉 " + b.name + " milestone! Income ×" + newMult
+          : b.emoji + " " + b.name + " ×" + S.biz[b.id]);
         save(); renderTab(); updateHUD();
       }
     );
-    liveRows.push({ btn, getCost: () => bizCost(b) });
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.innerHTML = '<i style="width:' + ((count % MILESTONE) / MILESTONE * 100) + '%"></i>';
+    bar.title = toNext + " more to ×2 income";
+    info.appendChild(bar);
+    liveRows.push({ btn,
+      getCost:  () => bulkInfo(b.cost, BIZ_GROWTH, S.biz[b.id] || 0).cost,
+      getLabel: () => {
+        const { n, cost } = bulkInfo(b.cost, BIZ_GROWTH, S.biz[b.id] || 0);
+        return (n > 1 ? "×" + n + " " : "") + fmt(cost);
+      },
+    });
     panelEl.appendChild(row);
   }
 }
 
 function renderUpgrades() {
+  addAmtSelector();
   for (const u of UPGRADES) {
     const count = S.ups[u.id] || 0;
     const { row, btn } = makeRow(
       u.emoji, u.name, "+" + fmt(u.add).slice(1) + " per tap",
-      count ? "Lv." + count : "", fmt(upCost(u)),
+      count ? "Lv." + count : "", "",
       () => {
-        const cost = upCost(u);
+        const { n, cost } = bulkInfo(u.cost, u.growth, S.ups[u.id] || 0);
         if (!spend(cost)) return;
-        S.ups[u.id] = (S.ups[u.id] || 0) + 1;
+        S.ups[u.id] = (S.ups[u.id] || 0) + n;
         buzz(20); blip(600, 0.12, 0.08);
         toast(u.emoji + " " + u.name + " Lv." + S.ups[u.id]);
         save(); renderTab(); updateHUD();
       }
     );
-    liveRows.push({ btn, getCost: () => upCost(u) });
+    liveRows.push({ btn,
+      getCost:  () => bulkInfo(u.cost, u.growth, S.ups[u.id] || 0).cost,
+      getLabel: () => {
+        const { n, cost } = bulkInfo(u.cost, u.growth, S.ups[u.id] || 0);
+        return (n > 1 ? "×" + n + " " : "") + fmt(cost);
+      },
+    });
     panelEl.appendChild(row);
   }
 }
 
+function dailyAvailable() { return S.lastDaily !== new Date().toDateString(); }
+
 function renderBoosts() {
+  // Daily free gift
+  const avail = dailyAvailable();
+  const gift = makeRow("🎁", "Daily Gift", avail ? "Free cash + a free Golden Frenzy. Every day!" : "Come back tomorrow for more!",
+    "", avail ? "FREE" : "✓ Claimed",
+    () => {
+      if (!dailyAvailable()) return;
+      S.lastDaily = new Date().toDateString();
+      const gain = Math.max(1000, perSec() * 1800 + tapValue() * 200);
+      earn(gain);
+      const now = Date.now();
+      const existing = S.activeBoosts.find(ab => ab.id === "frenzy");
+      if (existing) existing.until = Math.max(existing.until, now) + 30000;
+      else S.activeBoosts.push({ id:"frenzy", until: now + 30000 });
+      buzz([30, 40, 30]); blip(880, 0.2, 0.1);
+      toast("🎁 +" + fmt(gain) + " and Golden Frenzy!");
+      rainCoins();
+      save(); renderTab(); updateHUD();
+    });
+  if (avail) gift.btn.classList.add("free");
+  else gift.btn.disabled = true;
+  panelEl.appendChild(gift.row);
+
   for (const p of POWERUPS) {
     const { row, btn } = makeRow(
       p.emoji, p.name, p.desc, "", fmt(powerCost(p)),
@@ -511,8 +668,7 @@ function renderBoosts() {
         save(); renderTab(); updateHUD();
       }
     );
-    // costs shift with your income, so refresh the label live
-    liveRows.push({ btn, getCost: () => powerCost(p), liveLabel: true });
+    liveRows.push({ btn, getCost: () => powerCost(p), getLabel: () => fmt(powerCost(p)) });
     panelEl.appendChild(row);
   }
   const note = document.createElement("div");
@@ -557,14 +713,81 @@ function renderStyle() {
   }
 }
 
+function renderAwards() {
+  const unlockedCount = S.ach.length;
+  const head = document.createElement("div");
+  head.className = "sectionTitle";
+  head.textContent = "Achievements " + unlockedCount + " / " + ACHIEVEMENTS.length + " — each gives a permanent income bonus";
+  panelEl.appendChild(head);
+
+  for (const a of ACHIEVEMENTS) {
+    const done = S.ach.includes(a.id);
+    const [cur, target] = a.goal();
+    const pct = Math.min(100, cur / target * 100);
+    const { row, btn, info } = makeRow(
+      a.emoji, a.name, a.desc + " · +" + Math.round(a.reward * 100) + "% ALL income",
+      "", done ? "✓ Done" : Math.floor(pct) + "%", () => {});
+    btn.disabled = true;
+    if (done) { row.classList.add("done"); btn.classList.add("free"); btn.disabled = false; btn.style.pointerEvents = "none"; }
+    const bar = document.createElement("div");
+    bar.className = "bar gold";
+    const fill = document.createElement("i");
+    fill.style.width = pct + "%";
+    bar.appendChild(fill);
+    info.appendChild(bar);
+    if (!done) liveRows.push({ btn, getLabel: () => Math.floor(Math.min(100, a.goal()[0] / a.goal()[1] * 100)) + "%",
+                               barEl: fill, getPct: () => Math.min(100, a.goal()[0] / a.goal()[1] * 100) });
+    panelEl.appendChild(row);
+  }
+}
+
 function renderStats() {
+  // Prestige card
+  const card = document.createElement("div");
+  card.id = "prestigeCard";
+  const gain = prestigeGain();
+  card.innerHTML =
+    "<h3>🔄 Prestige</h3>" +
+    "<p>Reset your money, businesses and upgrades to earn Prestige Points. " +
+    "Each point gives <b>+" + Math.round(PRESTIGE_BONUS * 100) + "% ALL income forever</b>. " +
+    "You keep your style items, achievements and points.<br><br>" +
+    "Points: <b>" + S.prestigePoints + "</b> (+" + Math.round(S.prestigePoints * PRESTIGE_BONUS * 100) + "% forever) · Prestiges: <b>" + S.prestiges + "</b></p>";
+  const btn = document.createElement("button");
+  btn.id = "prestigeBtn";
+  if (gain >= 1) {
+    btn.textContent = "🔄 Prestige now: +" + gain + " point" + (gain > 1 ? "s" : "") + " (+" + Math.round(gain * PRESTIGE_BONUS * 100) + "% forever)";
+    btn.onclick = () => {
+      if (!confirm("Prestige now for +" + gain + " Prestige Point" + (gain > 1 ? "s" : "") + "?\n\nThis resets your money, businesses, upgrades and active boosts. You keep style items, achievements and prestige points.")) return;
+      S.prestigePoints += gain;
+      S.prestiges++;
+      S.money = 0; S.biz = {}; S.ups = {}; S.activeBoosts = []; S.runEarned = 0;
+      buzz([40, 60, 40]); blip(990, 0.3, 0.12);
+      toast("🔄 Reborn! +" + gain + " Prestige Point" + (gain > 1 ? "s" : ""));
+      save(); renderTab(); updateHUD(); updateAvatar();
+    };
+  } else {
+    btn.textContent = "Earn " + fmt(PRESTIGE_REQ) + " this run to unlock (" + fmt(S.runEarned) + " so far)";
+    btn.disabled = true;
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.marginTop = "8px";
+    bar.innerHTML = '<i style="width:' + Math.min(100, S.runEarned / PRESTIGE_REQ * 100) + '%"></i>';
+    card.appendChild(bar);
+  }
+  card.appendChild(btn);
+  panelEl.appendChild(card);
+
+  const bonusPct = Math.round((globalMult() - 1) * 100);
   const stats = [
     ["💰 Current cash", fmt(S.money)],
-    ["🏆 Total earned", fmt(S.totalEarned)],
+    ["🏆 Total earned (lifetime)", fmt(S.totalEarned)],
+    ["💵 Earned this run", fmt(S.runEarned)],
     ["👆 Total taps", S.taps.toLocaleString()],
-    ["🏢 Businesses owned", Object.values(S.biz).reduce((a, b) => a + b, 0)],
+    ["🏢 Businesses owned", bizTotal()],
     ["👕 Style items owned", S.owned.length + " / " + CLOTHING.length],
-    ["⚡ Boosts used", Object.values(S.powerBuys).reduce((a, b) => a + b, 0)],
+    ["🏅 Achievements", S.ach.length + " / " + ACHIEVEMENTS.length],
+    ["⚡ Boosts used", powerTotal()],
+    ["✨ Permanent bonus", "+" + bonusPct + "%"],
   ];
   for (const [k, v] of stats) {
     const d = document.createElement("div");
@@ -598,9 +821,25 @@ function renderStats() {
 
 function refreshRows() {
   for (const r of liveRows) {
-    const cost = r.getCost();
-    r.btn.disabled = S.money < cost;
-    if (r.liveLabel) r.btn.textContent = fmt(cost);
+    if (r.getCost) r.btn.disabled = S.money < r.getCost();
+    if (r.getLabel) r.btn.textContent = r.getLabel();
+    if (r.barEl) r.barEl.style.width = r.getPct() + "%";
+  }
+}
+
+/* ================= Achievements ================= */
+
+function checkAchievements() {
+  for (const a of ACHIEVEMENTS) {
+    if (S.ach.includes(a.id)) continue;
+    const [cur, target] = a.goal();
+    if (cur >= target) {
+      S.ach.push(a.id);
+      toast("🏅 " + a.name + "! +" + Math.round(a.reward * 100) + "% income forever");
+      buzz([20, 30, 20]); blip(1040, 0.25, 0.1);
+      save();
+      if (currentTab === "awards" || currentTab === "stats") renderTab();
+    }
   }
 }
 
@@ -610,6 +849,11 @@ function updateHUD() {
   moneyEl.textContent = fmt(S.money);
   tapValEl.textContent = fmt(tapValue());
   secValEl.textContent = fmt(perSec());
+  const chip = $("prestigeChip");
+  if (S.prestigePoints > 0) {
+    chip.style.display = "";
+    $("prestigeVal").textContent = "+" + Math.round(S.prestigePoints * PRESTIGE_BONUS * 100) + "%";
+  } else chip.style.display = "none";
 }
 
 function updateAvatar() {
@@ -619,7 +863,6 @@ function updateAvatar() {
   $("glasses").textContent = gl ? gl.emoji : "";
   $("chain").textContent = ch ? ch.emoji : "";
   auraEl.className = aura ? aura.css : "";
-  // richer face as you get richer
   const t = S.totalEarned;
   $("face").textContent = t >= 1e9 ? "🤑" : t >= 1e6 ? "😎" : t >= 1e4 ? "😄" : "🙂";
 }
@@ -644,7 +887,7 @@ function toast(msg) {
   t.textContent = msg;
   t.classList.add("show");
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => t.classList.remove("show"), 1600);
+  toast._timer = setTimeout(() => t.classList.remove("show"), 1800);
 }
 
 function rainCoins() {
@@ -708,6 +951,7 @@ setInterval(() => {
   refreshRows();
 }, 200);
 
+setInterval(checkAchievements, 1000);
 setInterval(save, 3000);
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
 window.addEventListener("pagehide", save);
@@ -723,6 +967,7 @@ offlineEarnings();
 updateAvatar();
 updateHUD();
 renderTab();
+checkAchievements();
 
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   navigator.serviceWorker.register("sw.js").catch(() => {});
