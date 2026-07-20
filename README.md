@@ -1,50 +1,73 @@
-# 💰 Tap Tycoon
+# Tap Tycoon
 
-A tap-to-earn money game for your phone, inspired by idle business tycoon games.
-Tap your character to make money, then spend it on businesses, upgrades, powerups
-and style items to become a billionaire.
+A tap-to-earn idle tycoon game for phones, with full vector art and a real
+Android app build for the Google Play Store.
 
-## 🎮 Features
+Play in browser / install as web app: **https://tomesortiz-debug.github.io/joyam/**
 
-- **👆 Tap to earn** — tap the character, watch the cash fly (with haptics + sound)
-- **🏢 8 businesses** — from Lemonade Stand to Space Company, each earns money per second automatically
-- **🎯 Milestones** — every 10 of a business **doubles** its income, with progress bars
-- **🛒 Buy ×1 / ×10 / MAX** — bulk-buy businesses and upgrades with one tap
-- **⬆️ Tap upgrades** — 5 upgrade lines that multiply how much each tap is worth
-- **⚡ Powerups** — Coffee Rush (2× tap), Golden Frenzy (3× everything), Money Rain and Time Warp (instant cash). Prices scale with your income so they always stay useful
-- **🎁 Daily Gift** — a free cash drop + free Golden Frenzy every day
-- **👕 Style shop** — hats, glasses, bling and auras. Your character visibly wears what you buy, and every item gives a permanent income bonus
-- **🏅 14 achievements** — each unlock gives a permanent ALL-income bonus, with progress bars
-- **🔄 Prestige** — reset your run for Prestige Points: +10% ALL income each, forever (keep style, achievements and points)
-- **😎 Evolving avatar** — your character's face gets happier (and greedier) as you get richer
-- **💤 Offline earnings** — your businesses keep working while the app is closed (up to 2 hours), collected in a "Welcome back" screen
-- **💾 Auto-save** — progress saves automatically to your device; works fully offline once installed
+## Features
 
-## 📱 How to get it on your phone (what YOU need to do)
+- **Tap to earn** — tap your tycoon character, cash flies out (haptics + sound)
+- **Vector art** — hand-drawn SVG character whose hats, glasses and bling visibly
+  change when equipped; custom icons for every item; city skyline backdrop
+- **8 businesses** with passive income and **milestones**: every 10 owned doubles
+  that business's income (progress bars in each row)
+- **Buy ×1 / ×10 / MAX** bulk purchasing
+- **5 tap upgrades**, **4 powerups** with income-scaled prices, **Daily Gift**
+- **Style shop** — 12 items across hats / glasses / bling / auras, each with a
+  permanent income bonus
+- **14 achievements** with progress bars and permanent rewards
+- **Prestige** — reset your run for +10% ALL income per point, forever
+- **Offline earnings** (2h cap), auto-save, works fully offline
 
-The game is a **PWA (Progressive Web App)** — no app store needed:
+## Project layout
 
-1. **Enable GitHub Pages** (one-time):
-   - Merge this branch to `main` (or push it as `main`)
-   - In this repo go to **Settings → Pages → Source** and choose **GitHub Actions**
-   - The included workflow (`.github/workflows/deploy.yml`) deploys the game automatically on every push
-2. **Open the game on your phone** at:
-   `https://tomesortiz-debug.github.io/joyam/`
-3. **Install it like a real app**:
-   - **Android (Chrome):** tap the ⋮ menu → **Add to Home screen** → Install
-   - **iPhone (Safari):** tap Share → **Add to Home Screen**
+| Path | What it is |
+|---|---|
+| `www/` | The game itself (single-file HTML5, no dependencies) |
+| `android/` | Native Android app (Capacitor wrapper around `www/`) |
+| `capacitor.config.json` | App id/name for the Android build |
+| `.github/workflows/deploy.yml` | Publishes `www/` to GitHub Pages on every push to main |
+| `.github/workflows/build-android.yml` | Builds the Play Store AAB + installable APKs on every push to main |
 
-It then launches full-screen with its own icon, works offline, and keeps your save.
+## Getting the Android build
 
-You can also test it right now on a computer by just opening `index.html` in a browser.
+Every push to `main` runs the **Build Android app** workflow. Open the run in
+the Actions tab and download:
 
-## 🚀 Optional next steps (to go further)
+- `tap-tycoon-debug-apk` — install directly on any Android phone to test
+- `tap-tycoon-playstore-aab` — upload this file to Google Play Console
 
-- **Real Android app (Play Store):** wrap the deployed URL with [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) (TWA) or [Capacitor](https://capacitorjs.com/) — needs a Google Play developer account ($25 one-time)
-- **Cloud save / leaderboards:** would need a small backend (e.g. Firebase)
-- **More content:** prestige/rebirth system, achievements, more items — just ask!
+### One-time signing setup (needed for the Play Store AAB)
 
-## 🛠️ Tech
+The release build is signed with an upload keystore kept in GitHub secrets
+(never committed). In the repo: **Settings → Secrets and variables → Actions**:
 
-Pure HTML/CSS/JavaScript — no frameworks, no build step, single `index.html`.
-Includes a web app manifest, service worker (offline support) and generated icons.
+1. Under **Secrets**, add `KEYSTORE_BASE64` (the base64 text of the keystore)
+   and `KEYSTORE_PASSWORD` (its password)
+2. Under **Variables**, add `SIGNING_ENABLED` = `true`
+
+The key alias is `upload`. Keep the keystore file and password backed up —
+Play uses them to verify every future update of the app.
+
+### Publishing to Google Play (checklist)
+
+1. Create a Google Play developer account ($25 one-time): https://play.google.com/console
+2. Create app → name **Tap Tycoon** (or your own — also change `appName` in
+   `capacitor.config.json` and `android/app/src/main/res/values/strings.xml`)
+3. Complete the required declarations (content rating, target audience, data
+   safety — the game collects **no** data, everything is stored on-device)
+4. Upload the `tap-tycoon-playstore-aab` file under **Production → Create release**
+   (accept Google-managed app signing when asked)
+5. Add store listing assets: description, screenshots (take them from the web
+   version on your phone), and the app icon (`www/icon-512.png`)
+6. Submit for review
+
+Each new release needs a bumped `versionCode`/`versionName` in
+`android/app/build.gradle`.
+
+## Local development
+
+The game is plain HTML/JS — open `www/index.html` in a browser, edit, refresh.
+For the Android shell: `npm install`, `npx cap sync android`, then open
+`android/` in Android Studio.

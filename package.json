@@ -1,0 +1,21 @@
+{
+  "name": "joyam",
+  "version": "1.0.0",
+  "description": "A tap-to-earn money game for your phone, inspired by idle business tycoon games. Tap your character to make money, then spend it on businesses, upgrades, powerups and style items to become a billionaire.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:41729/git/tomesortiz-debug/joyam"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/core": "^8.4.2"
+  }
+}

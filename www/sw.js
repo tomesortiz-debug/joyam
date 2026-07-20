@@ -1,4 +1,4 @@
-const CACHE = "tap-tycoon-v2";
+const CACHE = "tap-tycoon-v3";
 const ASSETS = [
   "./",
   "./index.html",
